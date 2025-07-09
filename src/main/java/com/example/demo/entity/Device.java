@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -16,9 +15,25 @@ import jakarta.persistence.Enumerated;
 public class Device {
     
     @Id
-    @Column(name = "device_id", length = 20, nullable = false)
-    private String deviceId;  // 如果改为自增，应使用 @GeneratedValue
+    @Column(name = "device_id", nullable = false)
+    private Integer deviceId;  // 如果改为自增，应使用 @GeneratedValue
     
+    public Integer getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(Integer deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public DeviceType getDeviceType() {
+        return deviceType;
+    }
+
+    public void setDeviceType(DeviceType deviceType) {
+        this.deviceType = deviceType;
+    }
+
     @Column(name = "device_name", length = 50, nullable = false)
     private String deviceName;
     
@@ -61,104 +76,7 @@ public class Device {
         updatedAt = LocalDateTime.now();
     }
     
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    // Getters and Setters
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
-
-    public String getDeviceName() {
-        return deviceName;
-    }
-
-    public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
-    }
-
-    public DeviceType getDeviceType() {
-        return deviceType;
-    }
-
-    public void setDeviceType(DeviceType deviceType) {
-        this.deviceType = deviceType;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public OperationalStatus getOperationalStatus() {
-        return operationalStatus;
-    }
-
-    public void setOperationalStatus(OperationalStatus operationalStatus) {
-        this.operationalStatus = operationalStatus;
-    }
-
-    public LocalDateTime getLastDataTime() {
-        return lastDataTime;
-    }
-
-    public void setLastDataTime(LocalDateTime lastDataTime) {
-        this.lastDataTime = lastDataTime;
-    }
-
-    public LocalDateTime getLastHeartbeat() {
-        return lastHeartbeat;
-    }
-
-    public void setLastHeartbeat(LocalDateTime lastHeartbeat) {
-        this.lastHeartbeat = lastHeartbeat;
-    }
-
-    public LocalDateTime getLastCalibration() {
-        return lastCalibration;
-    }
-
-    public void setLastCalibration(LocalDateTime lastCalibration) {
-        this.lastCalibration = lastCalibration;
-    }
-
-    public LocalDateTime getNextCalibration() {
-        return nextCalibration;
-    }
-
-    public void setNextCalibration(LocalDateTime nextCalibration) {
-        this.nextCalibration = nextCalibration;
-    }
-
-    public String getCalibrationOperator() {
-        return calibrationOperator;
-    }
-
-    public void setCalibrationOperator(String calibrationOperator) {
-        this.calibrationOperator = calibrationOperator;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
+   
 
     // 枚举定义
     public enum DeviceType {
