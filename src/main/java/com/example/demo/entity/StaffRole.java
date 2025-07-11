@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -11,6 +12,7 @@ import jakarta.persistence.Table;
 @Table(name = "staffrole")
 public class StaffRole {
     @EmbeddedId
+    @Column(name = "id")
     private StaffRoleKey id;  // 复合主键类
 
     @ManyToOne
@@ -24,7 +26,7 @@ public class StaffRole {
     private Role role;
 
     public void setId(StaffRoleKey staffRoleKey) {
-        // TODO Auto-generated method stub
+        
         this.id = staffRoleKey;
     }
 

@@ -10,6 +10,6 @@ public interface RolePermissionRepository extends JpaRepository<RolePermission, 
     
     @Query("SELECT CASE WHEN COUNT(rp) > 0 THEN true ELSE false END " +
            "FROM RolePermission rp " +
-           "WHERE rp.role.roleId = :roleId AND rp.permission.permName = :permName")
+           "WHERE rp.role.roleId = :roleId AND rp.permission.permission = :permName")
     boolean existsByRoleIdAndPermissionName(Integer roleId, String permName);
 }

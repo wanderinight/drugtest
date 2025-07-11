@@ -1,5 +1,6 @@
 package com.example.demo.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -11,6 +12,7 @@ import jakarta.persistence.Table;
 @Table(name = "roleprm")
 public class RolePermission {
     @EmbeddedId
+    @Column(name = "permid")
     private RolePermissionKey id;  // 复合主键类
 
     @ManyToOne
@@ -19,8 +21,8 @@ public class RolePermission {
     private Role role;
 
     @ManyToOne
-    @MapsId("permId")
-    @JoinColumn(name = "permid")
+    @MapsId("permissionId")
+    @JoinColumn(name = "permissionid")
     private Permission permission;
 
     public RolePermissionKey getId() {

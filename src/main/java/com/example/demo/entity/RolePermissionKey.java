@@ -7,12 +7,31 @@ import jakarta.persistence.Embeddable;
 @Embeddable
 public class RolePermissionKey implements Serializable {
     private Integer roleId;
-    private Integer permId;
+    private Integer permissionId;
 
-    public RolePermissionKey(Integer roleId2, Integer permId2) {
-        //TODO Auto-generated constructor stub
+    public RolePermissionKey() {}
+    public RolePermissionKey(Integer roleId2, Integer permissionId2) {
+
         this.roleId = roleId2;
-        this.permId = permId2;
+        this.permissionId = permissionId2;
+    }
+
+    @Override
+        public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        RolePermissionKey that = (RolePermissionKey) o;
+
+        if (!roleId.equals(that.roleId)) return false;
+        return permissionId.equals(that.permissionId);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = roleId.hashCode();
+        result = 31 * result + permissionId.hashCode();
+        return result;
     }
     public Integer getRoleId() {
         return roleId;
@@ -20,11 +39,11 @@ public class RolePermissionKey implements Serializable {
     public void setRoleId(Integer roleId) {
         this.roleId = roleId;
     }
-    public Integer getPermId() {
-        return permId;
+    public Integer getPermissionId() {
+        return permissionId;
     }
-    public void setPermId(Integer permId) {
-        this.permId = permId;
+    public void setPermissionId(Integer permissionId) {
+        this.permissionId = permissionId;
     }
 }
 

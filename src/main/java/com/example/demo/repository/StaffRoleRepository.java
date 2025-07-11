@@ -13,4 +13,6 @@ public interface StaffRoleRepository extends JpaRepository<StaffRole, StaffRoleK
     
     @Query("SELECT sr.role FROM StaffRole sr WHERE sr.staff.staffId = :staffId")
     List<Role> findRolesByStaffId(Integer staffId);
+
+    
 }

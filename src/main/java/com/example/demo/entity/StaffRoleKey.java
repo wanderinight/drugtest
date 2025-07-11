@@ -7,12 +7,32 @@ import jakarta.persistence.Embeddable;
 @Embeddable
 public class StaffRoleKey implements Serializable{
     public StaffRoleKey(Integer staffId2, Integer roleId2) {
-        //TODO Auto-generated constructor stub
+        
         this.staffId = staffId2;
         this.roleId = roleId2;
     }
     private Integer staffId;
     private Integer roleId;
+
+    public StaffRoleKey() {}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StaffRoleKey that = (StaffRoleKey) o;
+
+        if (!staffId.equals(that.staffId)) return false;
+        return roleId.equals(that.roleId);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = staffId.hashCode();
+        result = 31 * result + roleId.hashCode();
+        return result;
+    }
+
     public Integer getStaffId() {
         return staffId;
     }
