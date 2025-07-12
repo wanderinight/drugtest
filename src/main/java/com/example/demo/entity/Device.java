@@ -23,7 +23,7 @@ public class Device {
     private Integer deviceId;
 
     @Column(name = "device_code",length = 50, unique = true)
-    private String devicecode;
+    private String deviceCode;
 
     @Column(name = "device_name",length = 50)
     private String deviceName;
@@ -36,11 +36,11 @@ public class Device {
     private DeviceType deviceType;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "monitor_status", nullable = false, columnDefinition = "ENUM('monitoron','monitorinterrupt','monitoroff')")
+    @Column(name = "monitor_status", nullable = false, columnDefinition = "ENUM(' MONITORON',' MONITORINTERRUPT',' MONITOROFF')")
     private MonitorStatus monitor_status = MonitorStatus.MONITOROFF;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "operational_status", nullable = false, columnDefinition = "ENUM('running','offline')")
+    @Column(name = "operational_status", nullable = false, columnDefinition = "ENUM('RUNNING','OFFLINE')")
     private OperationalStatus operationalStatus = OperationalStatus.OFFLINE;
     
     @Column(name = "self_calibration")
@@ -88,11 +88,11 @@ public class Device {
 
 
     // Getters and Setters
-   public String getDevicecode() {
-        return devicecode;
+   public String getDeviceCode() {
+        return deviceCode;
     }
-    public void setDevicecode(String devicecode) {
-        this.devicecode = devicecode;
+    public void setDeviceCode(String deviceCode) {
+        this.deviceCode = deviceCode;
     }
     public String getDeviceName() {
         return deviceName;
