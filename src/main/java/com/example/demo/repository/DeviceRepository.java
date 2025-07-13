@@ -27,4 +27,32 @@ public interface DeviceRepository extends JpaRepository<Device, Integer> {
     @Query("SELECT COUNT(d) FROM Device d")
     Integer countAll();
 
+    // 查询待校准设备数量
+    @Query("SELECT COUNT(d) FROM Device d WHERE d.calibrationStatus = 'PENDING'")
+    Integer countWaitCalibrationNow();
+    // 查询监控中设备数量
+    @Query("SELECT COUNT(d) FROM Device d WHERE d.monitorStatus = 'MONITORON'")
+    Integer countMonitorOnNow();
+    // 查询监控中断设备数量
+    @Query("SELECT COUNT(d) FROM Device d WHERE d.monitorStatus = 'MONITORINTERRUPT'")
+     Integer countMonitorInterruptNow();
+
+    // 查询未在监控中设备数量
+    @Query("SELECT COUNT(d) FROM Device d WHERE d.monitorStatus = 'MONITOROFF'")
+    Integer countMonitorOffNow();
+
+    // 查询警报中设备数量
+    @Query("SELECT COUNT(d) FROM Device d WHERE d.alertStatus = 'ON'")
+    Integer countAlertOnNow();
+
+    // 查询运行中设备数量
+    @Query("SELECT COUNT(d) FROM Device d WHERE d.operationalStatus = 'RUNNING'")
+    Integer countOperationalOnNow();
+
+    // 查询待机中设备数量
+    @Query("SELECT COUNT(d) FROM Device d WHERE d.operationalStatus = 'OFFLINE'")
+    Integer countOperationalOfflineNow();
+
+   
+
 }

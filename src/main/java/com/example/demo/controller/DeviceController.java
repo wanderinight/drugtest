@@ -35,7 +35,7 @@ public class DeviceController {
         return stats;
     }
 
-    @PostMapping("/follow")
+    @PostMapping("/follow")// 获取关注设备列表
    public ResponseEntity<Result> getDevicefollow(@RequestParam String staffcode) {
         List<Device> device= deviceService.getDeviceByStaffCode(staffcode);
         // 提取所有设备的 devicecode 并转换为字符串列表
@@ -45,11 +45,39 @@ public class DeviceController {
         return ResponseEntity.ok(Result.success(device));
     }
     
-    @GetMapping("/countall")
+    @GetMapping("/countall")// 获取所有设备数量
      public ResponseEntity<Result> getcountall() {
         return ResponseEntity.ok(Result.success(deviceService.getCountAll()));
     }
     
+    @GetMapping("/waitcalibration-countnow")// 获取待校准设备数量
+     public ResponseEntity<Result> getWaitCalibrationCountNow() {
+        return ResponseEntity.ok(Result.success(deviceService.getWaitCalibrationCountNow()));
+    }
 
-
+    @GetMapping("/monitoron-countnow")// 获取监控中设备数量
+     public ResponseEntity<Result> getMonitorOnCountNow() {
+        return ResponseEntity.ok(Result.success(deviceService.getMonitorOnCountNow()));
+    }
+    @GetMapping("/monitorinterrupt-countnow")// 获取监控中断设备数量
+     public ResponseEntity<Result> getMonitorInterruptCountNow() {
+        return ResponseEntity.ok(Result.success(deviceService.getMonitorInterruptCountNow()));
+    }
+    @GetMapping("/monitoroff-countnow")// 获取未在监控中设备数量
+     public ResponseEntity<Result> getMonitorOffCountNow() {
+        return ResponseEntity.ok(Result.success(deviceService.getMonitorOffCountNow()));
+    }
+    @GetMapping("/alerton-countnow")// 获取告警中设备数量
+     public ResponseEntity<Result> getAlertOnCountNow() {
+        return ResponseEntity.ok(Result.success(deviceService.getAlertOnCountNow()));
+    }
+    @GetMapping("/operationalon-countnow")// 获取运行中设备数量
+     public ResponseEntity<Result> getOperationalOnCountNow() {
+        return ResponseEntity.ok(Result.success(deviceService.getOperationalOnCountNow()));
+    }
+    @GetMapping("/operationaloffline-countnow")// 获取待机设备数量
+    public ResponseEntity<Result> getOperationalOfflineCountNow() {
+        return ResponseEntity.ok(Result.success(deviceService.getOperationalOfflineCountNow()));
+    }
+    //查询设备校准情况----有待讨论，到底要什么情况？？？
 }

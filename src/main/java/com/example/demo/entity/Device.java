@@ -36,13 +36,23 @@ public class Device {
     private DeviceType deviceType;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "monitor_status", nullable = false, columnDefinition = "ENUM(' MONITORON',' MONITORINTERRUPT',' MONITOROFF')")
-    private MonitorStatus monitor_status = MonitorStatus.MONITOROFF;
+    @Column(name = "monitor_status", nullable = false, columnDefinition = "ENUM('MONITORON','MONITORINTERRUPT','MONITOROFF')")
+    private MonitorStatus monitorStatus = MonitorStatus.MONITOROFF;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "operational_status", nullable = false, columnDefinition = "ENUM('RUNNING','OFFLINE')")
     private OperationalStatus operationalStatus = OperationalStatus.OFFLINE;
-    
+   
+    @Enumerated(EnumType.STRING)
+    @Column(name = "alert_status", nullable = false, columnDefinition = "ENUM('ON','OFF')")
+    private AlertStatus alertStatus = AlertStatus.OFF;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "calibration_status", nullable = false, columnDefinition = "ENUM('NORMAL','PENDING')")
+    private CalibrationStatus calibrationStatus = CalibrationStatus.PENDING;
+
+
+
     @Column(name = "self_calibration")
     private LocalDateTime selfCalibration;
     
@@ -85,6 +95,12 @@ public class Device {
     public enum MonitorStatus {
         MONITORON, MONITORINTERRUPT, MONITOROFF
     }
+    public enum AlertStatus {
+        ON, OFF
+    }
+    public enum CalibrationStatus {
+        NORMAL, PENDING
+    }
 
 
     // Getters and Setters
@@ -106,11 +122,11 @@ public class Device {
     public void setLocation(String location) {
         this.location = location;
     }
-    public MonitorStatus getMonitor_status() {
-        return monitor_status;
+    public MonitorStatus getMonitorStatus() {
+        return monitorStatus;
     }
-    public void setMonitor_status(MonitorStatus monitor_status) {
-        this.monitor_status = monitor_status;
+    public void setMonitorStatus(MonitorStatus monitorStatus) {
+        this.monitorStatus = monitorStatus;
     }
     public OperationalStatus getOperationalStatus() {
         return operationalStatus;
@@ -170,5 +186,16 @@ public class Device {
     public void setDeviceType(DeviceType deviceType) {
         this.deviceType = deviceType;
     }
- 
+    public AlertStatus getAlertStatus() {
+        return alertStatus;
+    }
+    public void setAlertStatus(AlertStatus alertStatus) {
+        this.alertStatus = alertStatus;
+    }
+    public CalibrationStatus getCalibrationStatus() {
+        return calibrationStatus;
+    }
+    public void setCalibrationStatus(CalibrationStatus calibrationStatus) {
+        this.calibrationStatus = calibrationStatus;
+    }
 }
