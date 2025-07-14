@@ -14,7 +14,10 @@ public class DeviceService {
     
     @Autowired
     private DeviceRepository deviceRepository;
-
+    // 获取所有设备列表
+     public List<Device> getAllDevices() {
+        return deviceRepository.findAll();
+    }
     // 获取设备总数
     public long getTotalDeviceCount() {
         return deviceRepository.countTotalDevices();
@@ -66,4 +69,6 @@ public class DeviceService {
     public Integer getOperationalOfflineCountNow() {
         return deviceRepository.countOperationalOfflineNow();
     }
+
+   
 }

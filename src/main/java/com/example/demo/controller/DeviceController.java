@@ -27,6 +27,12 @@ public class DeviceController {
     @Autowired
     private DeviceService deviceService;
     
+    @GetMapping("/getall")
+    public ResponseEntity<Result> getAllDevices() {
+        List<Device> devices = deviceService.getAllDevices();
+        return ResponseEntity.ok(Result.success(devices));
+    }
+
     @GetMapping("/stats")
     public Map<String, Long> getDeviceStats() {
         Map<String, Long> stats = new HashMap<>();
