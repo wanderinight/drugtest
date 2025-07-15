@@ -41,7 +41,7 @@ public class DeviceController {
         return stats;
     }
 
-    @PostMapping("/follow")// 获取关注设备列表
+    @GetMapping("/follow")// 获取关注设备列表
    public ResponseEntity<Result> getDevicefollow(@RequestParam String staffcode) {
         List<Device> device= deviceService.getDeviceByStaffCode(staffcode);
         // 提取所有设备的 devicecode 并转换为字符串列表

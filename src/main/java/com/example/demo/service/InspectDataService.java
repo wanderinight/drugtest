@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,6 +25,19 @@ public class InspectDataService {
         List<InspectionData> result = inspectDataRepository.findLatestByDeviceId(deviceCode);
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
+     // 新增方法：按批次获取检测数据
+    public List<InspectionData> getInspectionsByBatch(String batchNo) {
+        return inspectDataRepository.findByBatchNo(batchNo);
+    }
     
+    // 新增方法：按产品获取检测数据
+    public List<InspectionData> getInspectionsByProduct(String productId) {
+        return inspectDataRepository.findByProductId(productId);
+    }
+    
+    // 新增方法：按时间范围获取检测数据
+    public List<InspectionData> getInspectionsByTimeRange(ZonedDateTime start, ZonedDateTime end) {
+        return inspectDataRepository.findByInspectTimeBetween(start, end);
+    }
 
 }
