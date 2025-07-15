@@ -19,8 +19,9 @@ public class InspectionData {
     @JoinColumn(name = "device_id", referencedColumnName = "deviceid")
     private Device device;
 
-    @Column(name = "product_id", length = 50, nullable = false)
-    private String productId;
+    @ManyToOne
+    @JoinColumn(name = "product_id", referencedColumnName = "product_id", nullable = false)
+    private Product product;
 
     @Column(name = "batch_no", length = 30, nullable = false)
     private String batchNo;
@@ -69,14 +70,14 @@ public class InspectionData {
         this.device = device;
     }
 
-    public String getProductId() {
-        return productId;
+   public Product getProduct() {
+        return product;
     }
+  
 
-    public void setProductId(String productId) {
-        this.productId = productId;
+    public void setProduct(Product product) {
+        this.product = product;
     }
-
     public String getBatchNo() {
         return batchNo;
     }
