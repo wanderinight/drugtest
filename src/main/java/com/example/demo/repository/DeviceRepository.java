@@ -23,6 +23,10 @@ public interface DeviceRepository extends JpaRepository<Device, Integer> {
     @Query("SELECT sd.device FROM StaffDevice sd WHERE sd.staff.staffcode = :staffcode")
     List<Device> findDevicesByStaffcode(String staffcode);
 
+    // 新增方法：通过 deviceCode 查询单个设备
+    @Query("SELECT d FROM Device d WHERE d.deviceCode = :deviceCode")
+    Device findByDeviceCode(String deviceCode);
+
     // 查询所有设备数量
     @Query("SELECT COUNT(d) FROM Device d")
     Integer countAll();
