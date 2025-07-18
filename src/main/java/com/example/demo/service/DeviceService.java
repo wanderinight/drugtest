@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.entity.Device;
 import com.example.demo.repository.DeviceRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -70,5 +71,31 @@ public class DeviceService {
         return deviceRepository.countOperationalOfflineNow();
     }
 
-   
+    public Device addDevice(Device device) {
+        // 直接判断返回值是否为null
+        if (deviceRepository.findByDeviceCode(device.getDeviceCode()) != null) {
+            throw new IllegalArgumentException("设备编号已存在：" + device.getDeviceCode());
+        }
+        return deviceRepository.save(device);
+    }
+
+    public Device getDeviceByCode(String deviceCode) {
+        Device device = deviceRepository.findByDeviceCode(deviceCode);
+        if (device == null) {
+            throw new IllegalArgumentException("设备不存在：" + deviceCode);
+        }
+        return device;
+    }
+
+
+    @Transactional
+    public void deleteDevice(String deviceCode) {
+        Device device = deviceRepository.findByDeviceCode(deviceCode);
+        if (device == null) {
+            throw new IllegalArgumentException("设备不存在: " + deviceCode);
+        }
+        // 物理删除（直接删除记录）
+        deviceRepository.delete(device);
+
+    }
 }

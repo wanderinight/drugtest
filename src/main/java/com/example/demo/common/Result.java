@@ -20,6 +20,14 @@ public class Result {
         return result;
     }
 
+    public static Result success(Object data, String msg) {
+        Result result = new Result();
+        result.setCode("200");
+        result.setMsg(msg);
+        result.setData(data);
+        return result;
+    }
+
     public static Result error() {
         Result result = new Result();
         result.setCode("500");

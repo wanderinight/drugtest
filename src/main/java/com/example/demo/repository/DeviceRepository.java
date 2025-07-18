@@ -3,10 +3,12 @@ package com.example.demo.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.entity.Device;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public interface DeviceRepository extends JpaRepository<Device, Integer> {
@@ -57,6 +59,12 @@ public interface DeviceRepository extends JpaRepository<Device, Integer> {
     @Query("SELECT COUNT(d) FROM Device d WHERE d.operationalStatus = 'OFFLINE'")
     Integer countOperationalOfflineNow();
 
-   
+    @Query("SELECT COUNT(d) > 0 FROM Device d WHERE d.deviceCode = :deviceCode")
+    boolean existsByDeviceCode(String deviceCode);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Device d WHERE d.deviceCode = :deviceCode")
+    void deleteByDeviceCode(String deviceCode);
 
 }
