@@ -1,36 +1,29 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "roleprm")
 public class RolePermission {
-    @EmbeddedId
+    @Id
     @Column(name = "permid")
-    private RolePermissionKey id;  // 复合主键类
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer permid;  // 主键
 
     @ManyToOne
-    @MapsId("roleId")
     @JoinColumn(name = "roleid")
     private Role role;
 
     @ManyToOne
-    @MapsId("permissionId")
     @JoinColumn(name = "permissionid")
     private Permission permission;
 
-    public RolePermissionKey getId() {
-        return id;
+    public Integer getId() {
+        return permid;
     }
 
-    public void setId(RolePermissionKey id) {
-        this.id = id;
+    public void setId(Integer id) {
+        this.permid = id;
     }
 
     public Role getRole() {
