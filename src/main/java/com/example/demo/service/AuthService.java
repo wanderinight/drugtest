@@ -38,6 +38,12 @@ public class AuthService {
         }
         return staff;
     }
+
+
+    public Staff getStaffByStaffcode(String staffcode) {
+        return staffRepository.findByStaffcode(staffcode);
+    }
+
     // public Staff authenticate(Integer staffId, String password) {
     //     Staff staff = staffRepository.findBystaffId(staffId)
     //             .orElseThrow(() -> new RuntimeException("User not found"));
