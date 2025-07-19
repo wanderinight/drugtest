@@ -47,6 +47,7 @@ public class AuthController {
         this.jwtTokenUtil = jwtTokenUtil;
         this.userDetailsService = userDetailsService;
     }
+ 
 
     @GetMapping("/check-permission")
     public ResponseEntity<?> checkPermission(
@@ -65,12 +66,12 @@ public class AuthController {
         return ResponseEntity.ok(Result.success(registeredStaff));
     }
     
-    @PostMapping("/login")
-    public ResponseEntity<Result> login(@RequestParam String staffcode, 
-                                     @RequestParam String password) {
-        Staff staff = authService.login(staffcode, password);
-        return ResponseEntity.ok(Result.success(staff));
-    }
+    // @PostMapping("/login")
+    // public ResponseEntity<Result> login(@RequestParam String staffcode, 
+    //                                  @RequestParam String password) {
+    //     Staff staff = authService.login(staffcode, password);
+    //     return ResponseEntity.ok(Result.success(staff));
+    // }
 
 
     @GetMapping("/get")
@@ -125,9 +126,10 @@ public class AuthController {
     
 
     // 请求和响应DTO
-    class LoginRequest {
+    static class LoginRequest {
         private String staffcode;
         private String password;
+        public LoginRequest() {}
         // getters and setters
         public String getStaffcode() {
             return staffcode;
