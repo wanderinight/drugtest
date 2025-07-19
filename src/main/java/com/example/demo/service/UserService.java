@@ -56,6 +56,12 @@ public class UserService implements UserDetailsService {
                 // .roles(staff.getRole()) // 假设Staff有getRole()方法返回角色名称-----待补充-部门
                 .build();
     }
+
+
+    public Staff getStaffByStaffcode(String staffcode) {
+        return staffRepository.findByStaffcode(staffcode);
+    }
+
     // public Staff authenticate(Integer staffId, String password) {
     //     Staff staff = staffRepository.findBystaffId(staffId)
     //             .orElseThrow(() -> new RuntimeException("User not found"));

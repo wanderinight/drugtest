@@ -13,6 +13,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody // 返回json串
     public Result error(Exception e) {
+        //e.printStackTrace();
         e.printStackTrace();
         return Result.error();
     }

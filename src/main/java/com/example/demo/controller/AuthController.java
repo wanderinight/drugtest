@@ -65,6 +65,24 @@ public class AuthController {
         return ResponseEntity.ok(Result.success(registeredStaff));
     }
     
+    @PostMapping("/login")
+    public ResponseEntity<Result> login(@RequestParam String staffcode, 
+                                     @RequestParam String password) {
+        Staff staff = authService.login(staffcode, password);
+        return ResponseEntity.ok(Result.success(staff));
+    }
+
+
+    @GetMapping("/get")
+    public ResponseEntity<Result> getStaff(@RequestParam String staffcode) {
+        Staff staff = authService.getStaffByStaffcode(staffcode);
+        if (staff != null) {
+            return ResponseEntity.ok(Result.success(staff));
+        } else {
+            return ResponseEntity.badRequest().body(Result.error());
+        }
+    }
+    //DTO事例：
     // @PostMapping("/login")
     // public ResponseEntity<Result> login(@RequestParam String staffcode, 
     //                                  @RequestParam String password) {

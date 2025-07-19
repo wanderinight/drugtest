@@ -3,10 +3,7 @@ package com.example.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.demo.common.Result;
 import com.example.demo.entity.Device;
@@ -16,8 +13,6 @@ import com.example.demo.service.DeviceService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
@@ -86,4 +81,61 @@ public class DeviceController {
         return ResponseEntity.ok(Result.success(deviceService.getOperationalOfflineCountNow()));
     }
     //查询设备校准情况----有待讨论，到底要什么情况？？？
+
+
+
+    @GetMapping("/get/{deviceCode}")
+    public ResponseEntity<Result> getDeviceByCode(@PathVariable String deviceCode) {
+        try {
+            Device device = deviceService.getDeviceByCode(deviceCode);
+            return ResponseEntity.ok(Result.success(device));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Result.error("400", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Result.error());
+        }
+    }
+
+
+    @PostMapping("/add")
+    public ResponseEntity<Result> addDevice(@RequestBody Device device) {
+        try {
+            Device savedDevice = deviceService.addDevice(device);
+            // 直接使用 success(Object data, String msg) 方法
+            return ResponseEntity.ok(Result.success(savedDevice, "设备添加成功"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Result.error("400", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Result.error());
+        }
+    }
+
+    @DeleteMapping("/delete/{deviceCode}")
+    public ResponseEntity<Result> deleteDevice(@PathVariable String deviceCode) {
+        try {
+            deviceService.deleteDevice(deviceCode);
+            // 无需返回数据时，传 null 作为数据
+            return ResponseEntity.ok(Result.success(null, "设备删除成功"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Result.error("400", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Result.error());
+        }
+    }
+
+
+    @PatchMapping("/patch/{deviceCode}")
+    public ResponseEntity<Result> patchDevice(
+            @PathVariable String deviceCode,
+            @RequestBody Map<String, Object> updates
+    ) {
+        try {
+            Device updatedDevice = deviceService.patchDevice(deviceCode, updates);
+            return ResponseEntity.ok(Result.success(updatedDevice, "设备更新成功"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Result.error("400", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Result.error("更新设备失败: " ,e.getMessage()));
+        }
+    }
 }
