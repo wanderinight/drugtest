@@ -82,6 +82,8 @@ public class DeviceController {
     }
     //查询设备校准情况----有待讨论，到底要什么情况？？？
 
+
+
     @GetMapping("/get/{deviceCode}")
     public ResponseEntity<Result> getDeviceByCode(@PathVariable String deviceCode) {
         try {
@@ -118,6 +120,22 @@ public class DeviceController {
             return ResponseEntity.badRequest().body(Result.error("400", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Result.error());
+        }
+    }
+
+
+    @PatchMapping("/patch/{deviceCode}")
+    public ResponseEntity<Result> patchDevice(
+            @PathVariable String deviceCode,
+            @RequestBody Map<String, Object> updates
+    ) {
+        try {
+            Device updatedDevice = deviceService.patchDevice(deviceCode, updates);
+            return ResponseEntity.ok(Result.success(updatedDevice, "设备更新成功"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Result.error("400", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Result.error("更新设备失败: " ,e.getMessage()));
         }
     }
 }
