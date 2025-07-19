@@ -85,7 +85,19 @@
 			<artifactId>itextpdf</artifactId>
 			<version>5.5.13.2</version>
 		</dependency>
-
+		  <!-- Lombok 简化代码 -->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+        <optional>true</optional>
+    </dependency>
+	<!-- For Jakarta EE 9+ (最新版本) -->
+	<dependency>
+		<groupId>jakarta.servlet</groupId>
+		<artifactId>jakarta.servlet-api</artifactId>
+		<version>6.0.0</version>
+		<scope>provided</scope>
+	</dependency>
 	</dependencies>
 
 	<build>
