@@ -2,7 +2,9 @@ package com.example.demo.service;
 
 import org.springframework.stereotype.Service;
 
+
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -12,6 +14,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.demo.entity.Staff;
+import com.example.demo.entity.Permission;
+import com.example.demo.entity.Role;
 import com.example.demo.exception.CustomException;
 import com.example.demo.repository.StaffRepository;
 
@@ -22,7 +26,7 @@ public class UserService implements UserDetailsService {
     @Autowired
     private  PasswordEncoder passwordEncoder;
     
-    public Staff register(Staff staff) {
+    public Staff register(Staff staff) {//账号注册
         if (staffRepository.existsByStaffcode(staff.getStaffcode())) {
             throw new RuntimeException("Employee ID already exists");
         }
@@ -60,6 +64,12 @@ public class UserService implements UserDetailsService {
 
     public Staff getStaffByStaffcode(String staffcode) {
         return staffRepository.findByStaffcode(staffcode);
+    }
+
+    // 获取员工的权限信息
+    public List<Permission> getPermByStaffcode(String staffcode) {
+        List<Permission> permissions = staffRepository.getPermissionsByStaffcode(staffcode);
+        return permissions;
     }
 
     // public Staff authenticate(Integer staffId, String password) {

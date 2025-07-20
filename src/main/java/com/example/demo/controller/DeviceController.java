@@ -124,6 +124,7 @@ public class DeviceController {
     }
 
 
+    // 更新设备信息
     @PatchMapping("/patch/{deviceCode}")
     public ResponseEntity<Result> patchDevice(
             @PathVariable String deviceCode,

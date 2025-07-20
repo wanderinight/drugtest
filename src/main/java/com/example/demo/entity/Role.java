@@ -1,10 +1,13 @@
 package com.example.demo.entity;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -14,6 +17,12 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "roleid")
     private Integer roleId;
+
+    @OneToMany(mappedBy = "role")
+    private List<StaffRole> staffRoles;
+
+    @OneToMany(mappedBy = "role")
+    private List<RolePermission> rolePermissions;
 
     @Column(name = "rolename")
     private String roleName;

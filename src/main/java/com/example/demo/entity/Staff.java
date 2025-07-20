@@ -1,10 +1,13 @@
 package com.example.demo.entity;
 
+import java.util.List;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -14,6 +17,10 @@ public class Staff {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "staffid")
     private Integer staffId;
+
+    // 确保字段名和查询中的 JOIN s.staffRoles 一致
+    @OneToMany(mappedBy = "staff")
+    private List<StaffRole> staffRoles;
 
     @Column(name = "staffname")
     private String staffname;

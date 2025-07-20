@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
 import com.example.demo.common.Result;
+import com.example.demo.entity.Permission;
 // import com.example.demo.dto.LoginRequest;
 import com.example.demo.entity.Staff;
 import com.example.demo.service.UserService;
@@ -95,6 +97,7 @@ public class AuthController {
         try {
             // 1. 使用原有AuthService验证登录（保持业务逻辑）
             Staff staff = authService.login(loginRequest.getStaffcode(), loginRequest.getPassword());
+            List<Permission> permissions = authService.getPermByStaffcode(loginRequest.getStaffcode());
             
             // 2. 使用Spring Security生成Token
             Authentication authentication = authenticationManager.authenticate(
@@ -107,7 +110,8 @@ public class AuthController {
             final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             Map<String, Object> claims = Map.of(
                 "staffId", staff.getStaffId(),
-                "staffName", staff.getStaffname()
+                "staffName", staff.getStaffname(),
+                "permissions", permissions
                 // "department", staff.getDepartment()
             );
 
@@ -116,7 +120,8 @@ public class AuthController {
             // 4. 返回Token和用户信息（保持原有返回格式）
             return ResponseEntity.ok(Result.success(Map.of(
                 "token", token,
-                "staff", staff
+                "staff", staff,
+                "permissions", permissions
             )));
             
         } catch (AuthenticationException e) {
