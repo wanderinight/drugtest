@@ -23,7 +23,16 @@ public class Permission {
 
     @Column(name = "permission")
     private String permission;
-    
+
+    @Column(name = "permission_code")
+    private String permissionCode;
+
+    public String getPermissionCode() {
+        return permissionCode;
+    }
+    public void setPermissionCode(String permissionCode) {
+        this.permissionCode = permissionCode;
+    }
     public Integer getPermissionId() {
         return permissionId;
     }
