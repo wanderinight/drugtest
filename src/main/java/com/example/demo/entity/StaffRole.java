@@ -1,37 +1,31 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.MapsId;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "staffrole")
+@Table(name = "staffrole",
+        uniqueConstraints = {@UniqueConstraint(columnNames = "staffid")}) // 确保一个用户只能有一个角色
 public class StaffRole {
-    @EmbeddedId
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private StaffRoleKey id;  // 复合主键类
+    private Integer id;  // 单独自增主键
 
-    @ManyToOne
-    @MapsId("staffId")
-    @JoinColumn(name = "staffid")
+    @OneToOne  // 改为一对一关联
+    @JoinColumn(name = "staffid", unique = true)  // 唯一约束，确保一个用户只关联一个角色
     private Staff staff;
 
     @ManyToOne
-    @MapsId("roleId")
     @JoinColumn(name = "roleid")
     private Role role;
 
-    public void setId(StaffRoleKey staffRoleKey) {
-        
-        this.id = staffRoleKey;
+    // getter和setter
+    public Integer getId() {
+        return id;
     }
 
-    public StaffRoleKey getId() {
-        return id;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public Staff getStaff() {
@@ -49,6 +43,4 @@ public class StaffRole {
     public void setRole(Role role) {
         this.role = role;
     }
-
-
 }
