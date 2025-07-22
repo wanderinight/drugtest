@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,7 +25,7 @@ public class PermissionService {
      */
     public boolean hasPermission(Integer staffId, String permName) {
         // 1. 获取员工所有角色
-        List<Role> roles = staffRoleRepo.findRolesByStaffId(staffId);
+        Optional<Role> roles = staffRoleRepo.findRoleByStaffId(staffId);
         
         // 2. 检查这些角色是否拥有指定权限
         return roles.stream()

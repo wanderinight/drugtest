@@ -8,7 +8,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name ="staffinfo")
@@ -18,9 +20,10 @@ public class Staff {
     @Column(name = "staffid")
     private Integer staffId;
 
-    // 确保字段名和查询中的 JOIN s.staffRoles 一致
-    @OneToMany(mappedBy = "staff")
-    private List<StaffRole> staffRoles;
+    //一对一关联（一个用户对应一个角色关联记录）
+    @JsonIgnore
+    @OneToOne(mappedBy = "staff")
+    private StaffRole staffRole;
 
     @Column(name = "staffname")
     private String staffname;
@@ -30,6 +33,7 @@ public class Staff {
 
     @Column(name = "password")
     private String password;
+
     public String getPassword() {
         return password;
     }
@@ -54,5 +58,11 @@ public class Staff {
     public void setStaffcode(String staffcode) {
         this.staffcode = staffcode;
     }
+    public StaffRole getStaffRole() {
+        return staffRole;
+    }
 
+    public void setStaffRole(StaffRole staffRole) {
+        this.staffRole = staffRole;
+    }
 }
