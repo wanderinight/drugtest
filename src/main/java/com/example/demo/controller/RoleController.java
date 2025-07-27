@@ -33,7 +33,7 @@ public class RoleController {
     /**
      * 修改角色
      */
-    @PutMapping("/{roleId}")
+    @PutMapping("/update/{roleId}")
     public ResponseEntity<Result> updateRole(
             @PathVariable Integer roleId,
             @RequestBody Role updatedRole
@@ -45,7 +45,7 @@ public class RoleController {
     /**
      * 删除角色
      */
-    @DeleteMapping("/{roleId}")
+    @DeleteMapping("/delete/{roleId}")
     public ResponseEntity<Result> deleteRole(@PathVariable Integer roleId) {
         roleService.deleteRole(roleId);
         return ResponseEntity.ok(Result.success("角色删除成功"));
@@ -54,7 +54,7 @@ public class RoleController {
     /**
      * 查询所有角色
      */
-    @GetMapping
+    @GetMapping("/list")
     public ResponseEntity<Result> getAllRoles() {
         List<Role> roles = roleService.getAllRoles();
         return ResponseEntity.ok(Result.success(roles));
@@ -62,9 +62,9 @@ public class RoleController {
 
     // -------------------------- 角色权限管理 --------------------------
     /**
-     * 查询某一角色的所有权限
+     * 查询某一角色详情
      */
-    @GetMapping("/{roleId}")
+    @GetMapping("/{roleId}/permissions")
     public ResponseEntity<Result> getPermissionsByRoleId(@PathVariable Integer roleId) {
         List<RolePermission> permissions = rolePermService.getPermissionsByRoleId(roleId);
         return ResponseEntity.ok(Result.success(permissions));
@@ -97,7 +97,7 @@ public class RoleController {
     /**
      * 批量设置角色的权限（全量更新）
      */
-    @PutMapping("/{roleId}/permissions")
+    @PutMapping("/update/{roleId}/permissions")
     public ResponseEntity<Result> setPermissionsForRole(
             @PathVariable Integer roleId,
             @RequestBody List<Integer> permIds // 请求体为权限ID列表，如 [1,2,3]
