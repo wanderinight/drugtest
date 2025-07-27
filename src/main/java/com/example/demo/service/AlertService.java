@@ -38,6 +38,16 @@ public class AlertService {
         }
     }
 
+    public Object getWeekAlertCount(String currentTime) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneOffset.UTC);
+            LocalDateTime parsedTime = LocalDateTime.parse(currentTime, formatter);
+            return alertRepository.countWeek(parsedTime);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("时间格式错误，请使用 yyyy-MM-dd HH:mm:ss");//待修改
+        }
+    }
+
       // 获取报警记录详情(分页)
     public Map<String, Object> getAlertDetails(int page, int size) {
         // 限制每页最大数量
@@ -111,6 +121,8 @@ public class AlertService {
             "pageSize", results.getSize()
         );
     }
+
+
 
     
 }

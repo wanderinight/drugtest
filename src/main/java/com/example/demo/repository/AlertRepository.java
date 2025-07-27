@@ -19,6 +19,9 @@ public interface AlertRepository extends JpaRepository<Alert, Integer> {
     @Query("SELECT COUNT(a) FROM Alert a WHERE DATE(a.alertTime) = DATE(:parsedTime)")
     Long countToday(@Param("parsedTime") LocalDateTime parsedTime);
 
+    //查询一周的告警数量
+    @Query("SELECT COUNT(a) FROM Alert a WHERE YEARWEEK(a.alertTime, 1) = YEARWEEK(:parsedTime, 1)")
+    Long countWeek(@Param("parsedTime") LocalDateTime parsedTime);
     // 分页查询
     @Query("SELECT a.alertTime, d.deviceCode, d.location, " +
         "a.alertType, a.alertLevel, a.context " +  

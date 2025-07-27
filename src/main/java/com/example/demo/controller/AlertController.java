@@ -32,6 +32,11 @@ public class AlertController {
     return ResponseEntity.ok(Result.success(alertService.getTodayAlertCount(currentTime)));
     }
    // 一周报警数量---待完成时间上的问题
+    @PostMapping("/count-week")
+    public ResponseEntity<Result> alertCountWeek(@RequestBody Map<String, String> payload) {
+        String currentTime = payload.get("currentTime");  // 前端发送的当前时间字符串
+        return ResponseEntity.ok(Result.success(alertService.getWeekAlertCount(currentTime)));
+    }
 
    // 分页获取报警记录详情（报警时间-设备编号-设备位置-报警内容）
     @GetMapping("/details")

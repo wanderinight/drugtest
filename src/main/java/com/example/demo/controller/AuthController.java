@@ -123,11 +123,14 @@ public class AuthController {
                 "staff", staff,
                 "permissions", permissions
             )));
-            
         } catch (AuthenticationException e) {
-            return ResponseEntity.badRequest().body(Result.error("401","用户名或密码错误"));
-        }
+            // 认证失败
+            return ResponseEntity.status(401).body(Result.error("401", "用户名或密码错误"));
+        } catch (Exception e) {
+            // 其他未知错误
+            return ResponseEntity.status(500).body(Result.error("500", "系统错误，请稍后重试"));
     }
+}
     
 
     // 请求和响应DTO

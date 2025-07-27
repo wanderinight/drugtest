@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.demo.annotation.AuditLog;
 import com.example.demo.common.Result;
 import com.example.demo.entity.Device;
 import com.example.demo.entity.Staff;
@@ -96,7 +97,7 @@ public class DeviceController {
         }
     }
 
-
+    @AuditLog(operationType = "CREATE", module = "设备管理", description = "创建新设备")
     @PostMapping("/add")
     public ResponseEntity<Result> addDevice(@RequestBody Device device) {
         try {

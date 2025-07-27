@@ -7,6 +7,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.annotation.AuditLog;
 import com.example.demo.entity.Device;
 import com.example.demo.repository.DeviceRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -72,6 +73,7 @@ public class DeviceService {
     public Integer getOperationalOfflineCountNow() {
         return deviceRepository.countOperationalOfflineNow();
     }
+
 
     public Device addDevice(Device device) {
         // 直接判断返回值是否为null
@@ -145,7 +147,7 @@ public class DeviceService {
                 case "selfCalibration":
                     device.setSelfCalibration(LocalDateTime.parse((String) value)); // 直接转为Boolean
                     break;
-
+                //可以增加数据有效性检验--
 
             }
         });
