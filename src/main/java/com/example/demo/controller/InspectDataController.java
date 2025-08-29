@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +49,27 @@ public class InspectDataController {
         return inspection.map(i -> ResponseEntity.ok(Result.success(i)))
                          .orElseGet(() -> ResponseEntity.ok(Result.error("200","未找到该设备的检测数据")));
     }
+    //返回时间段内的检测数据
+    @GetMapping("/details-by-time-range")
+    public ResponseEntity<Result> getInspectDataBytime(
+            // @RequestParam String startTime, 
+            // @RequestParam String endTime) throws Exception
+        @RequestParam 
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") 
+        LocalDateTime startTime, 
+
+        @RequestParam 
+        @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") 
+        LocalDateTime endTime) throws Exception {
+
+        ZonedDateTime start = startTime.atZone(ZonedDateTime.now().getZone());
+        ZonedDateTime end = endTime.atZone(ZonedDateTime.now().getZone());
+        
+        List<InspectionData> inspection = inspectDataService.getInspectionsByTimeRange(start, end);
+        return ResponseEntity.ok(Result.success(inspection));
+
+    }
+    
     
     //返回检测报告批-次-产品-时间
      // 生成按批次的报告并下载
