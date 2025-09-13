@@ -19,6 +19,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 
+import com.example.demo.annotation.AuditLog;
 import com.example.demo.common.Result;
 import com.example.demo.entity.Permission;
 // import com.example.demo.dto.LoginRequest;
@@ -52,13 +53,13 @@ public class AuthController {
  
 
     @GetMapping("/check-permission")
-    public ResponseEntity<?> checkPermission(
+    public ResponseEntity<Result> checkPermission(
         @RequestParam Integer staffId,//可能这里从页面读的是code？
         @RequestParam String permName
     ) {
         boolean hasPerm = permissionService.hasPermission(staffId, permName);
         return ResponseEntity.ok(
-            Map.of("hasPermission", hasPerm)
+            Result.success(Map.of("hasPermission", hasPerm))
         );
     }
     //    @PreAuthorize("hasAnyRole('ADMIN', 'USER')") // ADMIN或USER角色可以访问-->权限管理
@@ -76,7 +77,7 @@ public class AuthController {
     // }
 
 
-    @GetMapping("/get")
+    @GetMapping("/getstaff-by-code")
     public ResponseEntity<Result> getStaff(@RequestParam String staffcode) {
         Staff staff = authService.getStaffByStaffcode(staffcode);
         if (staff != null) {
@@ -92,7 +93,8 @@ public class AuthController {
     //     Staff staff = authService.login(staffcode, password);
     //     return ResponseEntity.ok(Result.success(staff));
     // }
-     @PostMapping("/login")
+    @AuditLog(operationType = "login", module = "用户管理", description = "用户登录")
+    @PostMapping("/login")
     public ResponseEntity<?> authlogin(@RequestBody LoginRequest loginRequest) {
         try {
             // 1. 使用原有AuthService验证登录（保持业务逻辑）
@@ -109,7 +111,7 @@ public class AuthController {
             // 3. 生成包含更多信息的Token
             final UserDetails userDetails = (UserDetails) authentication.getPrincipal();
             Map<String, Object> claims = Map.of(
-                "staffId", staff.getStaffId(),
+                // "staffId", staff.getStaffId(),————》并不需要
                 "staffName", staff.getStaffname(),
                 "permissions", permissions
                 // "department", staff.getDepartment()

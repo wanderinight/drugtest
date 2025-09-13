@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @RestController
@@ -35,6 +37,8 @@ public class InspectDataController {
 
     @Autowired
     private ReportService reportService;
+
+    private static final Logger log = LoggerFactory.getLogger(InspectDataController.class);
     // 返回所有设备的最新检测数据
     @GetMapping("/showrecent-all")
     public ResponseEntity<Result> getLatestInspections() {
@@ -134,6 +138,16 @@ public class InspectDataController {
         byte[] pdfBytes = reportService.generatePdfReport(dataList, "按时间范围报告", 
             "时间范围: " + start.toString() + " 至 " + end.toString());
         
+        // 保存PDF报告到服务器
+        String fileName = "药品检测报告_时间范围_" + start.toLocalDate() + "_至_" + end.toLocalDate() + "_" + 
+            UUID.randomUUID().toString().substring(0, 8) + ".pdf";
+        try {
+            String savedPath = reportService.savePdfReport(pdfBytes, fileName);
+            log.info("PDF报告已保存到: {}", savedPath);
+        } catch (Exception e) {
+            log.error("保存PDF报告失败: {}", e.getMessage(), e);
+        }
+
         // 设置响应头
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
