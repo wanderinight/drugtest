@@ -1,5 +1,31 @@
 <template>
   <div class="home">
+    <!-- 实时设备统计模块 -->
+    <section class="section stats-section">
+      <header class="section-header">
+        <h2>实时设备统计</h2>
+      </header>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">在监控设备数量</div>
+          <div class="stat-value">{{ realtimeStats.monitoringDevices ?? 0 }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">实时报警数量</div>
+          <div class="stat-value alert-value">{{ realtimeStats.alertingDevices ?? 0 }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">实时工作设备数量</div>
+          <div class="stat-value">{{ realtimeStats.workingDevices ?? 0 }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">实时待机设备数量</div>
+          <div class="stat-value">{{ realtimeStats.standbyDevices ?? 0 }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 实时报警数据 -->
     <section class="section">
       <header class="section-header">
         <h2>实时报警数据</h2>
@@ -11,21 +37,42 @@
               <th>时间</th>
               <th>设备编号</th>
               <th>设备位置</th>
-              <th>报警内容</th>
+              <th class="alert-content-col">报警内容</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="alert in alerts" :key="alert.id">
-              <td>{{ alert.alertTime }}</td>
+            <tr v-for="(alert, index) in alerts" :key="index">
+              <td>{{ formatDateTime(alert.alertTime) }}</td>
               <td>{{ alert.deviceCode }}</td>
               <td>{{ alert.location }}</td>
-              <td>{{ alert.message }}</td>
+              <td class="alert-content-cell">{{ alert.context || '-' }}</td>
             </tr>
             <tr v-if="!alerts.length">
               <td colspan="4" class="empty">暂无报警记录</td>
             </tr>
           </tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- 本周报警情况汇总 -->
+    <section class="section summary-section">
+      <header class="section-header">
+        <h2>本周报警情况汇总</h2>
+      </header>
+      <div class="summary-grid">
+        <div class="summary-card yellow">
+          <div class="summary-label">黄色报警</div>
+          <div class="summary-value">{{ weekSummary.yellowAlert ?? 0 }}</div>
+        </div>
+        <div class="summary-card red">
+          <div class="summary-label">红色报警</div>
+          <div class="summary-value">{{ weekSummary.redAlert ?? 0 }}</div>
+        </div>
+        <div class="summary-card machine">
+          <div class="summary-label">设备故障停机次数</div>
+          <div class="summary-value">{{ weekSummary.machineFailure ?? 0 }}</div>
+        </div>
       </div>
     </section>
 
@@ -79,6 +126,17 @@ const apiBase = import.meta.env.VITE_API_BASE_URL || '';
 
 const alerts = ref([]);
 const followedDevices = ref([]);
+const realtimeStats = ref({
+  monitoringDevices: 0,
+  alertingDevices: 0,
+  workingDevices: 0,
+  standbyDevices: 0
+});
+const weekSummary = ref({
+  yellowAlert: 0,
+  redAlert: 0,
+  machineFailure: 0
+});
 let timerId = null;
 
 const formatDateTime = (value) => {
@@ -129,24 +187,68 @@ const formatCalibrationStatus = (status) => {
 };
 
 const fetchAlerts = async () => {
-  const { data } = await axios.get(`${apiBase}/api/alert/details`, {
-    params: { page: 0, size: 10 }
-  });
-  alerts.value = data?.data?.content ?? data?.data ?? [];
+  try {
+    const { data } = await axios.get(`${apiBase}/api/alert/details`, {
+      params: { page: 0, size: 10 }
+    });
+    alerts.value = data?.data?.content ?? data?.data ?? [];
+  } catch (error) {
+    console.error('获取报警数据失败:', error);
+    alerts.value = [];
+  }
 };
 
 const fetchFollowedDevices = async () => {
   const staffCode = localStorage.getItem('staffCode');
   if (!staffCode) return;
 
-  const { data } = await axios.get(`${apiBase}/api/device/follow`, {
-    params: { staffcode: staffCode }
-  });
-  followedDevices.value = data?.data ?? [];
+  try {
+    const { data } = await axios.get(`${apiBase}/api/device/follow`, {
+      params: { staffcode: staffCode }
+    });
+    followedDevices.value = data?.data ?? [];
+  } catch (error) {
+    console.error('获取关注设备失败:', error);
+    followedDevices.value = [];
+  }
+};
+
+const fetchRealtimeStats = async () => {
+  try {
+    const { data } = await axios.get(`${apiBase}/api/device/realtime-stats`);
+    realtimeStats.value = data?.data ?? {
+      monitoringDevices: 0,
+      alertingDevices: 0,
+      workingDevices: 0,
+      standbyDevices: 0
+    };
+  } catch (error) {
+    console.error('获取实时统计失败:', error);
+  }
+};
+
+const fetchWeekSummary = async () => {
+  try {
+    const { data } = await axios.post(`${apiBase}/api/alert/week-summary`, {
+      currentTime: new Date().toISOString().slice(0, 19).replace('T', ' ')
+    });
+    weekSummary.value = data?.data ?? {
+      yellowAlert: 0,
+      redAlert: 0,
+      machineFailure: 0
+    };
+  } catch (error) {
+    console.error('获取本周报警汇总失败:', error);
+  }
 };
 
 const refreshAll = async () => {
-  await Promise.all([fetchAlerts(), fetchFollowedDevices()]);
+  await Promise.all([
+    fetchAlerts(),
+    fetchFollowedDevices(),
+    fetchRealtimeStats(),
+    fetchWeekSummary()
+  ]);
 };
 
 onMounted(() => {
@@ -212,6 +314,109 @@ th {
 .empty {
   text-align: center;
   color: #6b7280;
+}
+
+/* 报警内容列样式 - 预留更大空间 */
+.alert-content-col {
+  min-width: 300px;
+  width: 40%;
+}
+
+.alert-content-cell {
+  word-wrap: break-word;
+  word-break: break-all;
+  max-width: 500px;
+}
+
+/* 实时设备统计模块样式 */
+.stats-section {
+  margin-bottom: 1.5rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.stat-card {
+  background: rgba(30, 64, 175, 0.2);
+  border-radius: 12px;
+  padding: 1.2rem;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #60a5fa;
+}
+
+.stat-value.alert-value {
+  color: #f87171;
+}
+
+/* 本周报警情况汇总模块样式 */
+.summary-section {
+  margin-top: 1.5rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.summary-card {
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+  border: 1px solid;
+}
+
+.summary-card.yellow {
+  background: rgba(234, 179, 8, 0.15);
+  border-color: rgba(234, 179, 8, 0.4);
+}
+
+.summary-card.red {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.summary-card.machine {
+  background: rgba(107, 114, 128, 0.15);
+  border-color: rgba(107, 114, 128, 0.4);
+}
+
+.summary-label {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+}
+
+.summary-value {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.summary-card.yellow .summary-value {
+  color: #fbbf24;
+}
+
+.summary-card.red .summary-value {
+  color: #f87171;
+}
+
+.summary-card.machine .summary-value {
+  color: #9ca3af;
 }
 </style>
 

@@ -81,6 +81,21 @@ public class DeviceController {
     public ResponseEntity<Result> getOperationalOfflineCountNow() {
         return ResponseEntity.ok(Result.success(deviceService.getOperationalOfflineCountNow()));
     }
+
+    // 获取实时设备统计信息（在监控设备数量、实时报警数量、实时工作设备数量、实时待机设备数量）
+    @GetMapping("/realtime-stats")
+    public ResponseEntity<Result> getRealtimeStats() {
+        Map<String, Object> stats = new HashMap<>();
+        // 在监控设备数量 = 监控中设备数量
+        stats.put("monitoringDevices", deviceService.getMonitorOnCountNow());
+        // 实时报警数量 = 报警中设备数量
+        stats.put("alertingDevices", deviceService.getAlertOnCountNow());
+        // 实时工作设备数量 = 运行中设备数量
+        stats.put("workingDevices", deviceService.getOperationalOnCountNow());
+        // 实时待机设备数量 = 离线设备数量
+        stats.put("standbyDevices", deviceService.getOperationalOfflineCountNow());
+        return ResponseEntity.ok(Result.success(stats));
+    }
     //查询设备校准情况----有待讨论，到底要什么情况？？？
 
 

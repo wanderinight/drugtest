@@ -40,4 +40,16 @@ public interface AlertRepository extends JpaRepository<Alert, Integer> {
         @Param("endTime") LocalDateTime endTime,
         Pageable pageable);
 
+    // 查询本周黄色报警数量
+    @Query("SELECT COUNT(a) FROM Alert a WHERE YEARWEEK(a.alertTime, 1) = YEARWEEK(:parsedTime, 1) AND a.alertLevel = 'YELLOW'")
+    Long countWeekYellow(@Param("parsedTime") LocalDateTime parsedTime);
+
+    // 查询本周红色报警数量
+    @Query("SELECT COUNT(a) FROM Alert a WHERE YEARWEEK(a.alertTime, 1) = YEARWEEK(:parsedTime, 1) AND a.alertLevel = 'RED'")
+    Long countWeekRed(@Param("parsedTime") LocalDateTime parsedTime);
+
+    // 查询本周设备故障停机次数（MECHINE类型）
+    @Query("SELECT COUNT(a) FROM Alert a WHERE YEARWEEK(a.alertTime, 1) = YEARWEEK(:parsedTime, 1) AND a.alertType = 'MECHINE'")
+    Long countWeekMachineFailure(@Param("parsedTime") LocalDateTime parsedTime);
+
 }

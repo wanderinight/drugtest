@@ -31,11 +31,18 @@ public class AlertController {
          String currentTime = payload.get("currentTime");  // 前端发送的当前时间字符串
     return ResponseEntity.ok(Result.success(alertService.getTodayAlertCount(currentTime)));
     }
-   // 一周报警数量---待完成时间上的问题
+   // 一周报警数量
     @PostMapping("/count-week")
     public ResponseEntity<Result> alertCountWeek(@RequestBody Map<String, String> payload) {
-        String currentTime = payload.get("currentTime");  // 前端发送的当前时间字符串
+        String currentTime = payload.get("currentTime");  // 前端发送的当前时间字符串（可选）
         return ResponseEntity.ok(Result.success(alertService.getWeekAlertCount(currentTime)));
+    }
+
+    // 本周报警情况汇总
+    @PostMapping("/week-summary")
+    public ResponseEntity<Result> getWeekAlertSummary(@RequestBody Map<String, String> payload) {
+        String currentTime = payload.get("currentTime");  // 前端发送的当前时间字符串（可选）
+        return ResponseEntity.ok(Result.success(alertService.getWeekAlertSummary(currentTime)));
     }
 
    // 分页获取报警记录详情（报警时间-设备编号-设备位置-报警内容）

@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,11 +39,47 @@ public class AlertService {
 
     public Object getWeekAlertCount(String currentTime) {
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneOffset.UTC);
-            LocalDateTime parsedTime = LocalDateTime.parse(currentTime, formatter);
-            return alertRepository.countWeek(parsedTime);
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("时间格式错误，请使用 yyyy-MM-dd HH:mm:ss");//待修改
+            // 修正：使用当前时间作为基准，计算本周的开始和结束时间
+            LocalDateTime now = LocalDateTime.now();
+            if (currentTime != null && !currentTime.isEmpty()) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                try {
+                    now = LocalDateTime.parse(currentTime, formatter);
+                } catch (DateTimeParseException e) {
+                    // 如果解析失败，使用当前时间
+                    now = LocalDateTime.now();
+                }
+            }
+            return alertRepository.countWeek(now);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("获取本周报警数量失败: " + e.getMessage());
+        }
+    }
+
+    // 获取本周报警情况汇总
+    public Map<String, Object> getWeekAlertSummary(String currentTime) {
+        try {
+            LocalDateTime now = LocalDateTime.now();
+            if (currentTime != null && !currentTime.isEmpty()) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                try {
+                    now = LocalDateTime.parse(currentTime, formatter);
+                } catch (DateTimeParseException e) {
+                    now = LocalDateTime.now();
+                }
+            }
+            
+            Long yellowCount = alertRepository.countWeekYellow(now);
+            Long redCount = alertRepository.countWeekRed(now);
+            Long machineFailureCount = alertRepository.countWeekMachineFailure(now);
+            
+            return Map.of(
+                "yellowAlert", yellowCount != null ? yellowCount : 0L,
+                "redAlert", redCount != null ? redCount : 0L,
+                "machineFailure", machineFailureCount != null ? machineFailureCount : 0L
+            );
+        } catch (Exception e) {
+            throw new IllegalArgumentException("获取本周报警汇总失败: " + e.getMessage());
         }
     }
 
