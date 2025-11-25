@@ -156,6 +156,28 @@ public class AuthController {
             return ResponseEntity.status(401).body(Result.error("401", "令牌刷新失败"));
         }
     }
+
+    /**
+     * 根据员工工号获取该员工的角色和部门信息
+     */
+    @GetMapping("/staff-role-dept")
+    public ResponseEntity<Result> getStaffRoleAndDepartment(@RequestParam String staffcode) {
+        Staff staff = authService.getStaffByStaffcode(staffcode);
+        if (staff == null) {
+            return ResponseEntity.status(404).body(Result.error("404", "用户不存在"));
+        }
+
+        // 当前实现中通过 staffId 查询角色
+        Role role = roleService.getRoleById(staff.getStaffId());
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("staffcode", staff.getStaffcode());
+        data.put("staffname", staff.getStaffname());
+        data.put("department", staff.getDepartment());
+        data.put("role", role);
+
+        return ResponseEntity.ok(Result.success(data));
+    }
     
     // 注销端点
     @PostMapping("/logout")

@@ -20,6 +20,7 @@ const routes = [
   },
   {
     path: '/main',
+    name: 'main',
     component: MainView,
     meta: { requiresAuth: true },
     children: [

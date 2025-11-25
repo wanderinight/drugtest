@@ -64,10 +64,22 @@ const handleSubmit = async () => {
       password: form.password
     });
 
+    // 后端 Result 一般结构：{ code, msg, data }
+    if (data?.code && String(data.code) !== '200') {
+      errorMessage.value = data.msg || data.message || '登录失败，请检查账号或密码';
+      return;
+    }
+
     const payload = data?.data;
-    localStorage.setItem('accessToken', payload?.accessToken ?? '');
-    localStorage.setItem('refreshToken', payload?.refreshToken ?? '');
-    localStorage.setItem('staffName', payload?.staff?.staffname ?? '');
+    if (!payload) {
+      errorMessage.value = '登录返回数据为空，请联系管理员检查后端接口。';
+      return;
+    }
+
+    localStorage.setItem('accessToken', payload.accessToken ?? '');
+    localStorage.setItem('refreshToken', payload.refreshToken ?? '');
+    localStorage.setItem('staffName', payload.staff?.staffname ?? '');
+    localStorage.setItem('staffCode', payload.staff?.staffcode ?? '');
 
     await router.push({ name: 'main' });
   } catch (error) {

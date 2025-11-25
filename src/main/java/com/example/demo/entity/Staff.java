@@ -34,6 +34,10 @@ public class Staff {
     @Column(name = "password")
     private String password;
 
+    // 员工部门，对应表字段 department
+    @Column(name = "department")
+    private String department;
+
     public String getPassword() {
         return password;
     }
@@ -64,5 +68,13 @@ public class Staff {
 
     public void setStaffRole(StaffRole staffRole) {
         this.staffRole = staffRole;
+    }
+
+    public String getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(String department) {
+        this.department = department;
     }
 }
