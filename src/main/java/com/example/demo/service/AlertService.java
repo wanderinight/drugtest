@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -15,13 +16,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.entity.Alert;
+import com.example.demo.entity.Device;
 import com.example.demo.repository.AlertRepository;
+import com.example.demo.repository.DeviceRepository;
 
 @Service
 public class AlertService {
 
     @Autowired
     private AlertRepository alertRepository;
+
+    @Autowired
+    private DeviceRepository deviceRepository;
 
      // 默认最大分页大小
     private static final int MAX_PAGE_SIZE = 100;
@@ -95,10 +102,13 @@ public class AlertService {
             .map(record -> Map.of(
                 "alertTime", record[0],      // 报警时间
                 "deviceCode", record[1],    // 设备编号
-                "location", record[2],      // 设备位置
-                "alertType", record[3],     // 报警类型(DRUG/MECHINE)
-                "alertLevel", record[4],   // 报警等级(YELLOW/RED)
-                "context", record[5]        // 报警内容
+                "deviceName", record[2],   // 设备名称
+                "deviceType", record[3],   // 设备类型
+                "location", record[4],      // 设备位置
+                "monitorStatus", record[5], // 监控状态
+                "alertType", record[6],     // 报警类型(DRUG/MECHINE)
+                "alertLevel", record[7],   // 报警等级(YELLOW/RED)
+                "context", record[8]        // 报警内容
             ))
             .collect(Collectors.toList());
             
@@ -115,6 +125,7 @@ public class AlertService {
     public Map<String, Object> getAlertDetailsByTimeRange(
             LocalDateTime startTime, 
             LocalDateTime endTime,
+            String deviceCode,
             int page, 
             int size) {
         
@@ -135,16 +146,19 @@ public class AlertService {
         Pageable pageable = PageRequest.of(page, pageSize);
         
         Page<Object[]> results = alertRepository.findAlertDetailsByTimeRange(
-            startTime, endTime, pageable);
+            startTime, endTime, deviceCode, pageable);
         
         List<Map<String, Object>> content = results.getContent().stream()
             .map(record -> Map.of(
                "alertTime", record[0],      // 报警时间
                 "deviceCode", record[1],    // 设备编号
-                "location", record[2],      // 设备位置
-                "alertType", record[3],     // 报警类型(DRUG/MECHINE)
-                "alertLevel", record[4],   // 报警等级(YELLOW/RED)
-                "context", record[5]        // 报警内容
+                "deviceName", record[2],    // 设备名称
+                "deviceType", record[3],    // 设备类型
+                "location", record[4],      // 设备位置
+                "monitorStatus", record[5], // 监控状态
+                "alertType", record[6],     // 报警类型(DRUG/MECHINE)
+                "alertLevel", record[7],   // 报警等级(YELLOW/RED)
+                "context", record[8]        // 报警内容
             ))
             .collect(Collectors.toList());
             
@@ -157,7 +171,25 @@ public class AlertService {
         );
     }
 
-
-
-    
+    public List<Map<String, Object>> getDeviceAlertOverview() {
+        List<Device> devices = deviceRepository.findAll();
+        return devices.stream()
+            .map(device -> {
+                Alert latestAlert = alertRepository.findTopByDeviceDeviceIdOrderByAlertTimeDesc(device.getDeviceId());
+                Map<String, Object> info = new HashMap<>();
+                info.put("deviceId", device.getDeviceId());
+                info.put("deviceCode", device.getDeviceCode());
+                info.put("deviceName", device.getDeviceName());
+                info.put("deviceType", device.getDeviceType());
+                info.put("location", device.getLocation());
+                info.put("monitorStatus", device.getMonitorStatus());
+                info.put("operationalStatus", device.getOperationalStatus());
+                info.put("alertStatus", device.getAlertStatus());
+                info.put("latestAlertTime", latestAlert != null ? latestAlert.getAlertTime() : null);
+                info.put("latestAlertLevel", latestAlert != null ? latestAlert.getAlertLevel() : null);
+                info.put("latestAlertContext", latestAlert != null ? latestAlert.getContext() : null);
+                return info;
+            })
+            .collect(Collectors.toList());
+    }
 }

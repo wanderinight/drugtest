@@ -23,22 +23,27 @@ public interface AlertRepository extends JpaRepository<Alert, Integer> {
     @Query("SELECT COUNT(a) FROM Alert a WHERE YEARWEEK(a.alertTime, 1) = YEARWEEK(:parsedTime, 1)")
     Long countWeek(@Param("parsedTime") LocalDateTime parsedTime);
     // 分页查询
-    @Query("SELECT a.alertTime, d.deviceCode, d.location, " +
-        "a.alertType, a.alertLevel, a.context " +  
+    @Query("SELECT a.alertTime, d.deviceCode, d.deviceName, d.deviceType, d.location, d.monitorStatus, " +
+        "a.alertType, a.alertLevel, a.context " +
         "FROM Alert a JOIN a.device d " +
         "ORDER BY a.alertTime DESC")
     Page<Object[]> findAlertDetails(Pageable pageable);
 
     // 根据时间范围分页查询报警记录详情
-    @Query("SELECT a.alertTime, d.deviceCode, d.location, " +
+    @Query("SELECT a.alertTime, d.deviceCode, d.deviceName, d.deviceType, d.location, d.monitorStatus, " +
         "a.alertType, a.alertLevel, a.context " +
         "FROM Alert a JOIN a.device d " +
-        "WHERE a.alertTime BETWEEN :startTime AND :endTime " +
+        "WHERE (:startTime IS NULL OR a.alertTime >= :startTime) " +
+        "AND (:endTime IS NULL OR a.alertTime <= :endTime) " +
+        "AND (:deviceCode IS NULL OR d.deviceCode = :deviceCode) " +
         "ORDER BY a.alertTime DESC")
     Page<Object[]> findAlertDetailsByTimeRange(
         @Param("startTime") LocalDateTime startTime,
         @Param("endTime") LocalDateTime endTime,
+        @Param("deviceCode") String deviceCode,
         Pageable pageable);
+
+    Alert findTopByDeviceDeviceIdOrderByAlertTimeDesc(Integer deviceId);
 
     // 查询本周黄色报警数量
     @Query("SELECT COUNT(a) FROM Alert a WHERE YEARWEEK(a.alertTime, 1) = YEARWEEK(:parsedTime, 1) AND a.alertLevel = 'YELLOW'")

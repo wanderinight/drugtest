@@ -56,18 +56,24 @@ public class AlertController {
     // 带时间范围的分页查询---防止请求过大
     @GetMapping("/details-by-time-range")
     public ResponseEntity<Result> getAlertDetailsByTimeRange(
-            @RequestParam String startTime,
-            @RequestParam String endTime,
+            @RequestParam(required = false) String startTime,
+            @RequestParam(required = false) String endTime,
+            @RequestParam(required = false) String deviceCode,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
-        LocalDateTime start = LocalDateTime.parse(startTime, formatter);
-        LocalDateTime end = LocalDateTime.parse(endTime, formatter);
+        LocalDateTime start = startTime != null ? LocalDateTime.parse(startTime, formatter) : null;
+        LocalDateTime end = endTime != null ? LocalDateTime.parse(endTime, formatter) : null;
         
         return ResponseEntity.ok(Result.success(
-            alertService.getAlertDetailsByTimeRange(start, end, page, size)
+            alertService.getAlertDetailsByTimeRange(start, end, deviceCode, page, size)
         ));
+    }
+
+    @GetMapping("/device-overview")
+    public ResponseEntity<Result> getDeviceAlertOverview() {
+        return ResponseEntity.ok(Result.success(alertService.getDeviceAlertOverview()));
     }
 
 }

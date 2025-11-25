@@ -19,20 +19,12 @@
             <button class="link" @click="handleLogout">退出登录</button>
           </div>
         </div>
-        <div class="stats-row">
-          <div>
-            <span class="stat-label">设备总数：</span>
-            <span class="stat-value">{{ summary.totalDevices }}</span>
-          </div>
-          <div>
-            <span class="stat-label">今日报警数量：</span>
-            <span class="stat-value alert">{{ summary.todayAlerts }}</span>
-          </div>
-          <div>
-            <span class="stat-label">待校准设备数量：</span>
-            <span class="stat-value">{{ summary.pendingCalibration }}</span>
-          </div>
-        </div>
+        <DeviceStatusStrip
+          ref="overviewStrip"
+          class="inline-strip"
+          title="监控网络概览"
+          :show-refresh="false"
+        />
       </div>
 
       <section class="page-body">
@@ -47,21 +39,17 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
 import SideBar from '../components/SideBar.vue';
+import DeviceStatusStrip from '../components/DeviceStatusStrip.vue';
 
 const router = useRouter();
 const apiBase = import.meta.env.VITE_API_BASE_URL || '';
 const loading = ref(false);
+const overviewStrip = ref(null);
 
 const staffInfo = reactive({
   name: localStorage.getItem('staffName') || '未登录',
   department: '',
   roleName: ''
-});
-
-const summary = reactive({
-  totalDevices: 0,
-  todayAlerts: 0,
-  pendingCalibration: 0
 });
 
 const today = computed(() => {
@@ -83,22 +71,11 @@ const fetchStaffInfo = async () => {
   }
 };
 
-const fetchSummary = async () => {
-  const now = new Date().toISOString();
-  const [totalRes, alertRes, pendingRes] = await Promise.all([
-    axios.get(`${apiBase}/api/device/countall`).catch(() => ({ data: { data: 0 } })),
-    axios.post(`${apiBase}/api/alert/count-today`, { currentTime: now }).catch(() => ({ data: { data: 0 } })),
-    axios.get(`${apiBase}/api/device/waitcalibration-countnow`).catch(() => ({ data: { data: 0 } }))
-  ]);
-  summary.totalDevices = Number(totalRes.data?.data ?? 0);
-  summary.todayAlerts = Number(alertRes.data?.data ?? 0);
-  summary.pendingCalibration = Number(pendingRes.data?.data ?? 0);
-};
-
 const refreshOverview = async () => {
   loading.value = true;
   try {
-    await Promise.all([fetchStaffInfo(), fetchSummary()]);
+    await fetchStaffInfo();
+    overviewStrip.value?.refreshStats();
   } finally {
     loading.value = false;
   }
@@ -150,7 +127,7 @@ onMounted(() => {
   padding: 0.8rem 0;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.6rem;
 }
 
 .info-row {
@@ -180,25 +157,9 @@ onMounted(() => {
   padding: 0;
 }
 
-.stats-row {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-  font-size: 0.9rem;
-  color: #94a3b8;
-}
-
-.stat-label {
-  margin-right: 0.25rem;
-}
-
-.stat-value {
-  color: #e2e8f0;
-  font-weight: 600;
-}
-
-.stat-value.alert {
-  color: #f97316;
+.inline-strip :deep(.stats-strip) {
+  margin: 0;
+  padding: 0;
 }
 
 .page-body {
