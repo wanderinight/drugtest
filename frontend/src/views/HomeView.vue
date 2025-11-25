@@ -1,23 +1,5 @@
 <template>
   <div class="home">
-    <section class="stat-cards">
-      <div class="card">
-        <p class="label">设备总数</p>
-        <p class="value">{{ stats.totalDevices ?? '-' }}</p>
-      </div>
-      <div class="card">
-        <p class="label">监控中设备</p>
-        <p class="value">{{ stats.monitorOn ?? '-' }}</p>
-      </div>
-      <div class="card">
-        <p class="label">今日报警次数</p>
-        <p class="value alert">{{ stats.todayAlerts ?? '-' }}</p>
-      </div>
-      <button class="refresh" @click="manualRefresh" :disabled="loading">
-        {{ loading ? '刷新中...' : '刷新数据' }}
-      </button>
-    </section>
-
     <section class="section">
       <header class="section-header">
         <h2>实时报警数据</h2>
@@ -90,20 +72,13 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, reactive, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import axios from 'axios';
 
 const apiBase = import.meta.env.VITE_API_BASE_URL || '';
 
-const stats = reactive({
-  totalDevices: null,
-  monitorOn: null,
-  todayAlerts: null
-});
-
 const alerts = ref([]);
 const followedDevices = ref([]);
-const loading = ref(false);
 let timerId = null;
 
 const formatDateTime = (value) => {
@@ -153,20 +128,6 @@ const formatCalibrationStatus = (status) => {
   return map[status] || status || '-';
 };
 
-const fetchStats = async () => {
-  const now = new Date().toISOString();
-
-  const [totalRes, monitorRes, alertTodayRes] = await Promise.all([
-    axios.get(`${apiBase}/api/device/countall`),
-    axios.get(`${apiBase}/api/device/monitoron-countnow`),
-    axios.post(`${apiBase}/api/alert/count-today`, { currentTime: now })
-  ]);
-
-  stats.totalDevices = totalRes.data?.data ?? null;
-  stats.monitorOn = monitorRes.data?.data ?? null;
-  stats.todayAlerts = alertTodayRes.data?.data ?? null;
-};
-
 const fetchAlerts = async () => {
   const { data } = await axios.get(`${apiBase}/api/alert/details`, {
     params: { page: 0, size: 10 }
@@ -185,16 +146,7 @@ const fetchFollowedDevices = async () => {
 };
 
 const refreshAll = async () => {
-  loading.value = true;
-  try {
-    await Promise.all([fetchStats(), fetchAlerts(), fetchFollowedDevices()]);
-  } finally {
-    loading.value = false;
-  }
-};
-
-const manualRefresh = () => {
-  refreshAll();
+  await Promise.all([fetchAlerts(), fetchFollowedDevices()]);
 };
 
 onMounted(() => {
@@ -214,45 +166,6 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-}
-
-.stat-cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
-  gap: 1rem;
-  align-items: stretch;
-}
-
-.card {
-  padding: 1rem 1.2rem;
-  border-radius: 14px;
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(148, 163, 184, 0.4);
-}
-
-.label {
-  font-size: 0.85rem;
-  color: #9ca3af;
-  margin-bottom: 0.35rem;
-}
-
-.value {
-  font-size: 1.5rem;
-  font-weight: 600;
-}
-
-.value.alert {
-  color: #f97316;
-}
-
-.refresh {
-  align-self: center;
-  padding: 0.6rem 1.2rem;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  background: transparent;
-  color: #e5e7eb;
-  cursor: pointer;
 }
 
 .section {

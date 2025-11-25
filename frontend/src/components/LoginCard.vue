@@ -81,7 +81,7 @@ const handleSubmit = async () => {
     localStorage.setItem('staffName', payload.staff?.staffname ?? '');
     localStorage.setItem('staffCode', payload.staff?.staffcode ?? '');
 
-    await router.push({ name: 'main' });
+    await router.push('/main/home');
   } catch (error) {
     errorMessage.value =
       error?.response?.data?.message ??
