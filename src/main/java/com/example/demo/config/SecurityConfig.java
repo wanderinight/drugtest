@@ -76,7 +76,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:8080", "https://your-production-domain.com")); // 配置允许的源
+        configuration.setAllowedOrigins(List.of(
+            "http://localhost:8080",
+            "http://localhost:8082",
+            "https://your-production-domain.com"
+        )); // 配置允许的源
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         configuration.setExposedHeaders(List.of("Authorization"));
