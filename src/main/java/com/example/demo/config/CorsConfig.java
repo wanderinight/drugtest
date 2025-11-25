@@ -14,10 +14,10 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) { //参数需要为非空
         registry.addMapping("/**")
-                .allowedOrigins("*") // 生产环境应指定具体域名
-                .allowedMethods("*")
+                .allowedOrigins("http://localhost:8082") // 生产环境应指定具体域名
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(false) // 与allowedOrigins("*")冲突，需设为false
+                .allowCredentials(true) // 与allowedOrigins("*")冲突，需设为false
                 .maxAge(3600);
     }
 }
