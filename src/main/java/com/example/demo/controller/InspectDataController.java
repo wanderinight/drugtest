@@ -1,11 +1,15 @@
 package com.example.demo.controller;
 
-import java.util.Optional;
-import java.util.UUID;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,6 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.HttpHeaders;
 
 import com.example.demo.common.Result;
+import com.example.demo.dto.ReportGenerateRequest;
+import com.example.demo.dto.ReportPrintRequest;
 import com.example.demo.entity.InspectionData;
 import com.example.demo.service.InspectDataService;
 import com.example.demo.service.ReportService;
@@ -23,6 +29,10 @@ import com.example.demo.service.ReportService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import org.slf4j.Logger;
@@ -159,5 +169,105 @@ public class InspectDataController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(pdfBytes);
+    }
+
+    @PostMapping("/report/generate")
+    public ResponseEntity<Result> generateReportByFilters(@RequestBody ReportGenerateRequest request) {
+        try {
+            ZonedDateTime start = parseDateTime(request.getStartTime());
+            ZonedDateTime end = parseDateTime(request.getEndTime());
+
+            List<InspectionData> dataList = inspectDataService.getInspectionsByFilters(
+                normalizeList(request.getDeviceCodes()),
+                normalizeList(request.getBatchNos()),
+                normalizeList(request.getProductIds()),
+                start,
+                end
+            );
+
+            if (dataList.isEmpty()) {
+                return ResponseEntity.ok(Result.error("404", "未查询到符合条件的检测数据"));
+            }
+
+            String criteria = buildCriteriaDescription(request, start, end);
+            String title = StringUtils.hasText(request.getReportTitle()) ? request.getReportTitle() : "组合条件报告";
+
+            byte[] pdfBytes = reportService.generatePdfReport(dataList, title, criteria);
+
+            boolean saveFile = request.getSaveFile() == null || Boolean.TRUE.equals(request.getSaveFile());
+            String fileName = "药品检测报告_组合查询_" + System.currentTimeMillis() + "_" +
+                UUID.randomUUID().toString().substring(0, 6) + ".pdf";
+            String savedPath = null;
+            if (saveFile) {
+                savedPath = reportService.savePdfReport(pdfBytes, fileName);
+            }
+
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("fileName", fileName);
+            payload.put("savedPath", savedPath);
+            payload.put("previewBase64", Base64.getEncoder().encodeToString(pdfBytes));
+            payload.put("recordCount", dataList.size());
+            payload.put("criteria", criteria);
+
+            return ResponseEntity.ok(Result.success(payload));
+        } catch (Exception e) {
+            log.error("组合条件生成报告失败", e);
+            return ResponseEntity.ok(Result.error("500", "生成测量报告失败: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/report/print")
+    public ResponseEntity<Result> printReport(@RequestBody ReportPrintRequest request) {
+        log.info("收到打印请求，文件: {}, 路径: {}, 份数: {}", 
+            request.getFileName(), request.getFilePath(), request.getCopies());
+        return ResponseEntity.ok(Result.success("打印接口已预留，后续可接入打印机服务"));
+    }
+
+    private ZonedDateTime parseDateTime(String value) {
+        if (!StringUtils.hasText(value)) {
+            return null;
+        }
+        try {
+            return ZonedDateTime.parse(value);
+        } catch (Exception e) {
+            LocalDateTime local = LocalDateTime.parse(value, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            return local.atZone(ZoneId.systemDefault());
+        }
+    }
+
+    private List<String> normalizeList(List<String> list) {
+        if (CollectionUtils.isEmpty(list)) {
+            return null;
+        }
+        return list.stream()
+            .filter(StringUtils::hasText)
+            .map(String::trim)
+            .distinct()
+            .toList();
+    }
+
+    private String buildCriteriaDescription(ReportGenerateRequest request, ZonedDateTime start, ZonedDateTime end) {
+        StringBuilder builder = new StringBuilder();
+        if (!CollectionUtils.isEmpty(request.getDeviceCodes())) {
+            builder.append("设备: ").append(String.join(",", request.getDeviceCodes())).append("；");
+        }
+        if (!CollectionUtils.isEmpty(request.getBatchNos())) {
+            builder.append("批次: ").append(String.join(",", request.getBatchNos())).append("；");
+        }
+        if (!CollectionUtils.isEmpty(request.getProductIds())) {
+            builder.append("产品: ").append(String.join(",", request.getProductIds())).append("；");
+        }
+        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        if (start != null || end != null) {
+            builder.append("时间: ");
+            builder.append(start != null ? start.withZoneSameInstant(ZoneId.systemDefault()).format(fmt) : "不限");
+            builder.append(" 至 ");
+            builder.append(end != null ? end.withZoneSameInstant(ZoneId.systemDefault()).format(fmt) : "不限");
+            builder.append("；");
+        }
+        if (!StringUtils.hasText(builder.toString())) {
+            builder.append("条件: 全部数据；");
+        }
+        return builder.toString();
     }
 }

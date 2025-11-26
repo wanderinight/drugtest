@@ -4,13 +4,14 @@ import com.example.demo.entity.InspectionData;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 
 @Repository
-public interface InspectDataRepository extends JpaRepository<InspectionData, Integer> {
+public interface InspectDataRepository extends JpaRepository<InspectionData, Integer>, JpaSpecificationExecutor<InspectionData> {
     
     // 获取所有设备的最新检测数据
     @EntityGraph(attributePaths = {"device", "product"})
