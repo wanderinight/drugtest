@@ -6,6 +6,7 @@ import DeviceCenterView from '../views/DeviceCenterView.vue';
 import MonitorCenterView from '../views/MonitorCenterView.vue';
 import StatisticsCenterView from '../views/StatisticsCenterView.vue';
 import ReportCenterView from '../views/ReportCenterView.vue';
+import StatisticsAnalysisView from '../views/StatisticsAnalysisView.vue';
 import UserCenterView from '../views/UserCenterView.vue';
 
 const routes = [
@@ -30,6 +31,7 @@ const routes = [
       { path: 'monitor', name: 'monitor-center', component: MonitorCenterView },
       { path: 'statistics', name: 'statistics-center', component: StatisticsCenterView },
       { path: 'report', name: 'report-center', component: ReportCenterView },
+      { path: 'analysis', name: 'statistics-analysis', component: StatisticsAnalysisView },
       { path: 'user', name: 'user-center', component: UserCenterView }
     ]
   }

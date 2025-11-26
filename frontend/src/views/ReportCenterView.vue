@@ -97,7 +97,8 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
 import DeviceStatusStrip from '../components/DeviceStatusStrip.vue';
 
@@ -122,6 +123,7 @@ const message = ref('');
 const loading = ref(false);
 const actionType = ref('');
 const storagePathHint = './src/report';
+const route = useRoute();
 
 const parseListInput = (value) => {
   if (!value) return [];
@@ -212,10 +214,18 @@ const resetFilters = () => {
   message.value = '';
 };
 
+const applyRoutePrefill = () => {
+  const preDevice = route.query.device;
+  if (preDevice && !filters.deviceCodes.includes(preDevice)) {
+    filters.deviceCodes = [preDevice];
+  }
+};
+
 const fetchDevices = async () => {
   try {
     const { data } = await axios.get(`${apiBase}/api/device/getall`);
     deviceOptions.value = data?.data || [];
+    applyRoutePrefill();
   } catch (error) {
     console.error('获取设备列表失败', error);
     deviceOptions.value = [];
@@ -225,6 +235,11 @@ const fetchDevices = async () => {
 onMounted(() => {
   fetchDevices();
 });
+
+watch(
+  () => route.query.device,
+  () => applyRoutePrefill()
+);
 </script>
 
 <style scoped>

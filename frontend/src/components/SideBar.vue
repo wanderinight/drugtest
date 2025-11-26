@@ -23,12 +23,17 @@
       </li>
       <li>
         <RouterLink to="/main/statistics" class="item" active-class="active">
-          统计分析中心
+          计量校准中心
         </RouterLink>
       </li>
       <li>
         <RouterLink to="/main/report" class="item" active-class="active">
           测量报告中心
+        </RouterLink>
+      </li>
+      <li>
+        <RouterLink to="/main/analysis" class="item" active-class="active">
+          统计分析中心
         </RouterLink>
       </li>
       <li>
