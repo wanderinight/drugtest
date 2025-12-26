@@ -1,15 +1,27 @@
 # 开发环境配置
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/drugtest?useSSL=false&serverTimezone=UTC
-    username: root
-    password: 123456
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
-      idle-timeout: 30000
-      connection-timeout: 2000
+    dynamic:
+      primary: local  # 默认数据源
+      strict: false   # 严格匹配数据源，未匹配到则抛异常
+      datasource:
+        # 本地数据源
+        local:
+          url: jdbc:mysql://localhost:3306/drugtest?useSSL=false&serverTimezone=UTC&characterEncoding=utf8
+          username: root
+          password: 123456
+          driver-class-name: com.mysql.cj.jdbc.Driver
+        # 局域网数据源
+        pharmqcs:
+          url: jdbc:mysql://127.0.0.1:3306/pharmqcs?useSSL=false&serverTimezone=UTC&characterEncoding=utf8 # TODO 记得改局域网IP
+          username: root
+          password: 123456
+          driver-class-name: com.mysql.cj.jdbc.Driver
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        idle-timeout: 30000
+        connection-timeout: 2000
 
   jpa:
     hibernate:
@@ -24,9 +36,24 @@ spring:
   jackson:
     time-zone: UTC
 
+# MyBatis-Plus配置
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.example.demo.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
 # 开发环境日志级别
 logging:
   level:
     root: INFO
     com.example.demo: DEBUG
     org.hibernate.SQL: DEBUG
+    com.baomidou.dynamic: DEBUG
