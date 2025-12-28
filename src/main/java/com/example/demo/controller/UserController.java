@@ -66,4 +66,26 @@ public class UserController {
         List<Staff> staffList = adminService.getAllStaff();
         return ResponseEntity.ok(Result.success(staffList));
     }
+
+    /**
+     * 更新员工信息
+     */
+    @PutMapping("/update/{staffId}")
+    public ResponseEntity<Result> updateStaff(
+            @PathVariable Integer staffId,
+            @RequestBody AddUserRequest request
+    ) {
+        try {
+            Staff updatedStaff = adminService.updateStaff(
+                    staffId,
+                    request.getStaff(),
+                    request.getRoleId()
+            );
+            return ResponseEntity.ok(Result.success(updatedStaff, "员工信息更新成功"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Result.error("400", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Result.error());
+        }
+    }
 }

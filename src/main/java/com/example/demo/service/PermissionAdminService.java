@@ -103,4 +103,34 @@ public class PermissionAdminService {
     public List<Staff> getAllStaff() {
         return staffRepository.findAll();
     }
+
+    /**
+     * 更新员工信息
+     */
+    @Transactional
+    public Staff updateStaff(Integer staffId, Staff updatedStaff, Integer roleId) {
+        // 1. 验证员工存在
+        Staff staff = staffRepository.findById(staffId)
+                .orElseThrow(() -> new IllegalArgumentException("员工不存在：" + staffId));
+
+        // 2. 更新基本信息（如果提供了新值）
+        if (updatedStaff.getStaffname() != null && !updatedStaff.getStaffname().isEmpty()) {
+            staff.setStaffname(updatedStaff.getStaffname());
+        }
+        if (updatedStaff.getDepartment() != null) {
+            staff.setDepartment(updatedStaff.getDepartment());
+        }
+        // 如果提供了新密码，则加密并更新
+        if (updatedStaff.getPassword() != null && !updatedStaff.getPassword().isEmpty()) {
+            staff.setPassword(passwordEncoder.encode(updatedStaff.getPassword()));
+        }
+
+        // 3. 如果提供了角色ID，则更新角色
+        if (roleId != null) {
+            this.updateRoleForStaff(staffId, roleId);
+        }
+
+        // 4. 保存更新后的员工信息
+        return staffRepository.save(staff);
+    }
 }

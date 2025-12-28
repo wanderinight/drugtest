@@ -43,6 +43,7 @@
                 <td>{{ staff.staffcode || '-' }}</td>
                 <td>{{ staff.department || '-' }}</td>
                 <td>
+                  <button class="edit-btn" @click="editStaff(staff)">编辑</button>
                   <button class="delete-btn" @click="deleteStaff(staff.staffId)">删除</button>
                 </td>
               </tr>
@@ -54,22 +55,26 @@
         </div>
       </section>
 
-      <!-- 添加人员对话框 -->
+      <!-- 添加/编辑人员对话框 -->
       <div v-if="showStaffDialog" class="dialog-overlay" @click.self="showStaffDialog = false">
         <div class="dialog">
-          <h3>添加人员</h3>
-          <form @submit.prevent="addStaff">
+          <h3>{{ editingStaffId ? '编辑人员' : '添加人员' }}</h3>
+          <form @submit.prevent="editingStaffId ? updateStaff() : addStaff()">
             <label>
               姓名
               <input v-model.trim="staffForm.staffname" type="text" required />
             </label>
-            <label>
+            <label v-if="!editingStaffId">
               工号
               <input v-model.trim="staffForm.staffcode" type="text" required />
             </label>
+            <label v-else>
+              工号
+              <input v-model.trim="staffForm.staffcode" type="text" disabled />
+            </label>
             <label>
               密码
-              <input v-model.trim="staffForm.password" type="password" required />
+              <input v-model.trim="staffForm.password" type="password" :required="!editingStaffId" :placeholder="editingStaffId ? '留空则不修改密码' : ''" />
             </label>
             <label>
               部门
@@ -85,9 +90,9 @@
               </select>
             </label>
             <div class="dialog-actions">
-              <button type="button" class="cancel-btn" @click="showStaffDialog = false">取消</button>
+              <button type="button" class="cancel-btn" @click="closeStaffDialog">取消</button>
               <button type="submit" class="submit-btn" :disabled="staffLoading">
-                {{ staffLoading ? '添加中...' : '确定' }}
+                {{ staffLoading ? (editingStaffId ? '更新中...' : '添加中...') : '确定' }}
               </button>
             </div>
           </form>
@@ -126,6 +131,7 @@
                 <td>{{ device.location || '-' }}</td>
                 <td>{{ device.deviceType || '-' }}</td>
                 <td>
+                  <button class="edit-btn" @click="editDevice(device)">编辑</button>
                   <button class="delete-btn" @click="deleteDevice(device.deviceCode)">删除</button>
                 </td>
               </tr>
@@ -137,18 +143,22 @@
         </div>
       </section>
 
-      <!-- 添加设备对话框 -->
+      <!-- 添加/编辑设备对话框 -->
       <div v-if="showDeviceDialog" class="dialog-overlay" @click.self="showDeviceDialog = false">
         <div class="dialog">
-          <h3>添加设备</h3>
-          <form @submit.prevent="addDevice">
+          <h3>{{ editingDeviceCode ? '编辑设备' : '添加设备' }}</h3>
+          <form @submit.prevent="editingDeviceCode ? updateDevice() : addDevice()">
             <label>
               设备名称
               <input v-model.trim="deviceForm.deviceName" type="text" required />
             </label>
-            <label>
+            <label v-if="!editingDeviceCode">
               设备编号
               <input v-model.trim="deviceForm.deviceCode" type="text" required />
+            </label>
+            <label v-else>
+              设备编号
+              <input v-model.trim="deviceForm.deviceCode" type="text" disabled />
             </label>
             <label>
               位置
@@ -163,9 +173,9 @@
               </select>
             </label>
             <div class="dialog-actions">
-              <button type="button" class="cancel-btn" @click="showDeviceDialog = false">取消</button>
+              <button type="button" class="cancel-btn" @click="closeDeviceDialog">取消</button>
               <button type="submit" class="submit-btn" :disabled="deviceLoading">
-                {{ deviceLoading ? '添加中...' : '确定' }}
+                {{ deviceLoading ? (editingDeviceCode ? '更新中...' : '添加中...') : '确定' }}
               </button>
             </div>
           </form>
@@ -179,53 +189,86 @@
         <header class="section-header">
           <div>
             <h3>权限管理</h3>
-            <p class="sub-hint">管理系统权限信息</p>
+            <p class="sub-hint">管理角色对应的权限</p>
           </div>
-          <button class="add-btn" @click="showPermissionDialog = true">添加权限</button>
         </header>
 
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>权限名称</th>
-                <th>权限代码</th>
-                <th>操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="permission in permissionList" :key="permission.permissionId">
-                <td>{{ permission.permissionId }}</td>
-                <td>{{ permission.permission || '-' }}</td>
-                <td>{{ permission.permissionCode || '-' }}</td>
-                <td>
-                  <button class="delete-btn" @click="deletePermission(permission.permissionId)">删除</button>
-                </td>
-              </tr>
-              <tr v-if="!permissionList.length">
-                <td colspan="4" class="empty-cell">暂无权限数据</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="permission-management">
+          <!-- 左侧：角色列表 -->
+          <div class="role-list-container">
+            <h4>角色列表</h4>
+            <div class="role-list">
+              <div
+                v-for="role in roleList"
+                :key="role.roleId"
+                :class="['role-item', { active: selectedRoleId === role.roleId }]"
+                @click="selectRole(role.roleId)"
+              >
+                <span class="role-name">{{ role.roleName }}</span>
+                <span class="role-desc" v-if="role.roleDescription">{{ role.roleDescription }}</span>
+              </div>
+              <div v-if="!roleList.length" class="empty-role">暂无角色数据</div>
+            </div>
+          </div>
+
+          <!-- 右侧：权限列表 -->
+          <div class="permission-list-container">
+            <div v-if="!selectedRoleId" class="no-role-selected">
+              <p>请先选择一个角色</p>
+            </div>
+            <div v-else>
+              <div class="permission-header">
+                <h4>{{ selectedRoleName }} 的权限</h4>
+                <button class="add-btn" @click="showAddPermissionDialog = true">添加权限</button>
+              </div>
+              <div class="table-container">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>权限名称</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="rp in rolePermissionList" :key="rp.id">
+                      <td>{{ rp.permission?.permissionId }}</td>
+                      <td>{{ rp.permission?.permission || '-' }}</td>
+                      <td>
+                        <button class="delete-btn" @click="removePermissionFromRole(rp.permission.permissionId)">移除</button>
+                      </td>
+                    </tr>
+                    <tr v-if="!rolePermissionList.length">
+                      <td colspan="3" class="empty-cell">该角色暂无权限</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <!-- 添加权限对话框 -->
-      <div v-if="showPermissionDialog" class="dialog-overlay" @click.self="showPermissionDialog = false">
+      <!-- 添加权限到角色对话框 -->
+      <div v-if="showAddPermissionDialog" class="dialog-overlay" @click.self="showAddPermissionDialog = false">
         <div class="dialog">
-          <h3>添加权限</h3>
-          <form @submit.prevent="addPermission">
+          <h3>为 {{ selectedRoleName }} 添加权限</h3>
+          <form @submit.prevent="addPermissionToRole">
             <label>
-              权限名称
-              <input v-model.trim="permissionForm.permission" type="text" required />
-            </label>
-            <label>
-              权限代码
-              <input v-model.trim="permissionForm.permissionCode" type="text" required />
+              选择权限
+              <select v-model.number="selectedPermissionId" required>
+                <option :value="null">请选择权限</option>
+                <option
+                  v-for="perm in availablePermissions"
+                  :key="perm.permissionId"
+                  :value="perm.permissionId"
+                >
+                  {{ perm.permission }}
+                </option>
+              </select>
             </label>
             <div class="dialog-actions">
-              <button type="button" class="cancel-btn" @click="showPermissionDialog = false">取消</button>
+              <button type="button" class="cancel-btn" @click="showAddPermissionDialog = false">取消</button>
               <button type="submit" class="submit-btn" :disabled="permissionLoading">
                 {{ permissionLoading ? '添加中...' : '确定' }}
               </button>
@@ -234,12 +277,48 @@
         </div>
       </div>
     </div>
+
+    <!-- 主题设置 -->
+    <div v-show="activeTab === 'theme'" class="tab-content">
+      <section class="section">
+        <header class="section-header">
+          <div>
+            <h3>主题设置</h3>
+            <p class="sub-hint">自定义应用背景色</p>
+          </div>
+        </header>
+
+        <div class="theme-settings">
+          <div class="theme-section">
+            <h4>背景色选择</h4>
+            <p class="theme-hint">选择您喜欢的背景色，更改将立即生效</p>
+            <div class="color-picker">
+              <div
+                v-for="colorOption in backgroundColors"
+                :key="colorOption.value"
+                :class="['color-option', { active: backgroundColor === colorOption.value }]"
+                @click="setBackgroundColor(colorOption.value)"
+              >
+                <div
+                  class="color-preview"
+                  :style="{ backgroundColor: colorOption.preview }"
+                ></div>
+                <span class="color-name">{{ colorOption.name }}</span>
+                <div v-if="backgroundColor === colorOption.value" class="check-mark">✓</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, watch } from 'vue';
+import { ref, onMounted, reactive, watch, computed } from 'vue';
 import axios from 'axios';
+import { useTheme } from '../composables/useTheme';
 
 const apiBase = import.meta.env.VITE_API_BASE_URL || '';
 const activeTab = ref('staff');
@@ -247,7 +326,8 @@ const activeTab = ref('staff');
 const tabs = [
   { key: 'staff', label: '人员管理' },
   { key: 'device', label: '设备管理' },
-  { key: 'permission', label: '权限管理' }
+  { key: 'permission', label: '权限管理' },
+  { key: 'theme', label: '主题设置' }
 ];
 
 // 人员管理
@@ -255,6 +335,7 @@ const staffList = ref([]);
 const roleList = ref([]);
 const showStaffDialog = ref(false);
 const staffLoading = ref(false);
+const editingStaffId = ref(null);
 const staffForm = reactive({
   staffname: '',
   staffcode: '',
@@ -267,6 +348,7 @@ const staffForm = reactive({
 const deviceList = ref([]);
 const showDeviceDialog = ref(false);
 const deviceLoading = ref(false);
+const editingDeviceCode = ref(null);
 const deviceForm = reactive({
   deviceName: '',
   deviceCode: '',
@@ -274,14 +356,17 @@ const deviceForm = reactive({
   deviceType: ''
 });
 
-// 权限管理
-const permissionList = ref([]);
-const showPermissionDialog = ref(false);
+// 权限管理（角色权限管理）
+const selectedRoleId = ref(null);
+const selectedRoleName = ref('');
+const rolePermissionList = ref([]);
+const allPermissionList = ref([]);
+const showAddPermissionDialog = ref(false);
 const permissionLoading = ref(false);
-const permissionForm = reactive({
-  permission: '',
-  permissionCode: ''
-});
+const selectedPermissionId = ref(null);
+
+// 主题设置
+const { backgroundColor, backgroundColors, setBackgroundColor } = useTheme();
 
 // 获取所有角色
 const fetchRoles = async () => {
@@ -320,14 +405,7 @@ const addStaff = async () => {
     });
     if (data?.code === '200') {
       alert('人员添加成功');
-      showStaffDialog.value = false;
-      Object.assign(staffForm, {
-        staffname: '',
-        staffcode: '',
-        password: '',
-        department: '',
-        roleId: null
-      });
+      closeStaffDialog();
       await fetchStaff();
     } else {
       alert('添加失败: ' + (data?.msg || '未知错误'));
@@ -338,6 +416,74 @@ const addStaff = async () => {
   } finally {
     staffLoading.value = false;
   }
+};
+
+// 编辑人员
+const editStaff = async (staff) => {
+  editingStaffId.value = staff.staffId;
+  Object.assign(staffForm, {
+    staffname: staff.staffname || '',
+    staffcode: staff.staffcode || '',
+    password: '',
+    department: staff.department || '',
+    roleId: null
+  });
+  // 获取当前人员的角色
+  try {
+    const { data } = await axios.get(`${apiBase}/api/admin/users/${staff.staffId}/role`);
+    if (data?.code === '200' && data?.data) {
+      staffForm.roleId = data.data.roleId;
+    }
+  } catch (error) {
+    console.error('获取人员角色失败:', error);
+  }
+  showStaffDialog.value = true;
+};
+
+// 更新人员
+const updateStaff = async () => {
+  if (staffLoading.value) return;
+  staffLoading.value = true;
+  try {
+    const requestData = {
+      staff: {
+        staffname: staffForm.staffname,
+        password: staffForm.password || null,
+        department: staffForm.department || null
+      },
+      roleId: staffForm.roleId
+    };
+    // 如果密码为空，则不传递密码字段
+    if (!requestData.staff.password) {
+      delete requestData.staff.password;
+    }
+    const { data } = await axios.put(`${apiBase}/api/admin/users/update/${editingStaffId.value}`, requestData);
+    if (data?.code === '200') {
+      alert('人员更新成功');
+      closeStaffDialog();
+      await fetchStaff();
+    } else {
+      alert('更新失败: ' + (data?.msg || '未知错误'));
+    }
+  } catch (error) {
+    console.error('更新人员失败:', error);
+    alert('更新人员失败: ' + (error.response?.data?.msg || error.message));
+  } finally {
+    staffLoading.value = false;
+  }
+};
+
+// 关闭人员对话框
+const closeStaffDialog = () => {
+  showStaffDialog.value = false;
+  editingStaffId.value = null;
+  Object.assign(staffForm, {
+    staffname: '',
+    staffcode: '',
+    password: '',
+    department: '',
+    roleId: null
+  });
 };
 
 // 删除人员
@@ -376,13 +522,7 @@ const addDevice = async () => {
     const { data } = await axios.post(`${apiBase}/api/device/add`, deviceForm);
     if (data?.code === '200') {
       alert('设备添加成功');
-      showDeviceDialog.value = false;
-      Object.assign(deviceForm, {
-        deviceName: '',
-        deviceCode: '',
-        location: '',
-        deviceType: ''
-      });
+      closeDeviceDialog();
       await fetchDevices();
     } else {
       alert('添加失败: ' + (data?.msg || '未知错误'));
@@ -393,6 +533,56 @@ const addDevice = async () => {
   } finally {
     deviceLoading.value = false;
   }
+};
+
+// 编辑设备
+const editDevice = (device) => {
+  editingDeviceCode.value = device.deviceCode;
+  Object.assign(deviceForm, {
+    deviceName: device.deviceName || '',
+    deviceCode: device.deviceCode || '',
+    location: device.location || '',
+    deviceType: device.deviceType || ''
+  });
+  showDeviceDialog.value = true;
+};
+
+// 更新设备
+const updateDevice = async () => {
+  if (deviceLoading.value) return;
+  deviceLoading.value = true;
+  try {
+    const updateData = {
+      deviceName: deviceForm.deviceName,
+      location: deviceForm.location,
+      deviceType: deviceForm.deviceType
+    };
+    const { data } = await axios.patch(`${apiBase}/api/device/patch/${editingDeviceCode.value}`, updateData);
+    if (data?.code === '200') {
+      alert('设备更新成功');
+      closeDeviceDialog();
+      await fetchDevices();
+    } else {
+      alert('更新失败: ' + (data?.msg || '未知错误'));
+    }
+  } catch (error) {
+    console.error('更新设备失败:', error);
+    alert('更新设备失败: ' + (error.response?.data?.msg || error.message));
+  } finally {
+    deviceLoading.value = false;
+  }
+};
+
+// 关闭设备对话框
+const closeDeviceDialog = () => {
+  showDeviceDialog.value = false;
+  editingDeviceCode.value = null;
+  Object.assign(deviceForm, {
+    deviceName: '',
+    deviceCode: '',
+    location: '',
+    deviceType: ''
+  });
 };
 
 // 删除设备
@@ -412,31 +602,57 @@ const deleteDevice = async (deviceCode) => {
   }
 };
 
-// 获取所有权限
-const fetchPermissions = async () => {
+// 选择角色
+const selectRole = async (roleId) => {
+  selectedRoleId.value = roleId;
+  const role = roleList.value.find(r => r.roleId === roleId);
+  selectedRoleName.value = role ? role.roleName : '';
+  await fetchRolePermissions(roleId);
+};
+
+// 获取角色的权限
+const fetchRolePermissions = async (roleId) => {
   try {
-    const { data } = await axios.get(`${apiBase}/api/permissions/list`);
-    permissionList.value = data?.data ?? [];
+    const { data } = await axios.get(`${apiBase}/api/roles/${roleId}/permissions`);
+    if (data?.code === '200') {
+      rolePermissionList.value = data?.data ?? [];
+    }
   } catch (error) {
-    console.error('获取权限列表失败:', error);
-    alert('获取权限列表失败: ' + (error.response?.data?.msg || error.message));
+    console.error('获取角色权限失败:', error);
+    alert('获取角色权限失败: ' + (error.response?.data?.msg || error.message));
   }
 };
 
-// 添加权限
-const addPermission = async () => {
-  if (permissionLoading.value) return;
+// 获取所有权限（用于添加权限到角色时选择）
+const fetchAllPermissions = async () => {
+  try {
+    const { data } = await axios.get(`${apiBase}/api/permissions/list`);
+    allPermissionList.value = data?.data ?? [];
+  } catch (error) {
+    console.error('获取权限列表失败:', error);
+  }
+};
+
+// 计算可用权限（排除已拥有的权限）
+const availablePermissions = computed(() => {
+  if (!selectedRoleId.value) return allPermissionList.value;
+  const ownedPermissionIds = rolePermissionList.value.map(rp => rp.permission?.permissionId);
+  return allPermissionList.value.filter(perm => !ownedPermissionIds.includes(perm.permissionId));
+});
+
+// 为角色添加权限
+const addPermissionToRole = async () => {
+  if (permissionLoading.value || !selectedPermissionId.value) return;
   permissionLoading.value = true;
   try {
-    const { data } = await axios.post(`${apiBase}/api/permissions/add`, permissionForm);
+    const { data } = await axios.post(
+      `${apiBase}/api/roles/${selectedRoleId.value}/add-permission/${selectedPermissionId.value}`
+    );
     if (data?.code === '200') {
       alert('权限添加成功');
-      showPermissionDialog.value = false;
-      Object.assign(permissionForm, {
-        permission: '',
-        permissionCode: ''
-      });
-      await fetchPermissions();
+      showAddPermissionDialog.value = false;
+      selectedPermissionId.value = null;
+      await fetchRolePermissions(selectedRoleId.value);
     } else {
       alert('添加失败: ' + (data?.msg || '未知错误'));
     }
@@ -448,20 +664,22 @@ const addPermission = async () => {
   }
 };
 
-// 删除权限
-const deletePermission = async (permissionId) => {
-  if (!confirm('确定要删除该权限吗？')) return;
+// 从角色移除权限
+const removePermissionFromRole = async (permissionId) => {
+  if (!confirm('确定要从该角色移除该权限吗？')) return;
   try {
-    const { data } = await axios.delete(`${apiBase}/api/permissions/delete/${permissionId}`);
+    const { data } = await axios.delete(
+      `${apiBase}/api/roles/${selectedRoleId.value}/del-permission/${permissionId}`
+    );
     if (data?.code === '200') {
-      alert('权限删除成功');
-      await fetchPermissions();
+      alert('权限移除成功');
+      await fetchRolePermissions(selectedRoleId.value);
     } else {
-      alert('删除失败: ' + (data?.msg || '未知错误'));
+      alert('移除失败: ' + (data?.msg || '未知错误'));
     }
   } catch (error) {
-    console.error('删除权限失败:', error);
-    alert('删除权限失败: ' + (error.response?.data?.msg || error.message));
+    console.error('移除权限失败:', error);
+    alert('移除权限失败: ' + (error.response?.data?.msg || error.message));
   }
 };
 
@@ -473,7 +691,14 @@ const loadDataForTab = async () => {
   } else if (activeTab.value === 'device') {
     await fetchDevices();
   } else if (activeTab.value === 'permission') {
-    await fetchPermissions();
+    await fetchRoles();
+    await fetchAllPermissions();
+    // 重置选中状态
+    selectedRoleId.value = null;
+    selectedRoleName.value = '';
+    rolePermissionList.value = [];
+  } else if (activeTab.value === 'theme') {
+    // 主题设置不需要加载数据
   }
 };
 
@@ -490,11 +715,15 @@ onMounted(() => {
 <style scoped>
 .user-center h2 {
   margin: 0 0 0.5rem;
+  color: var(--app-text-color, #cbd5f5);
+  transition: color 0.3s;
 }
 
 .hint {
-  color: #9ca3af;
+  color: var(--app-text-color, #9ca3af);
+  opacity: 0.7;
   margin-bottom: 1.5rem;
+  transition: color 0.3s;
 }
 
 .tabs {
@@ -538,10 +767,12 @@ onMounted(() => {
 }
 
 .section {
-  background: rgba(15, 23, 42, 0.9);
+  background: var(--card-background-color, rgba(15, 23, 42, 0.9));
+  color: var(--card-text-color, #cbd5f5);
   border-radius: 16px;
   border: 1px solid rgba(148, 163, 184, 0.2);
   padding: 1.5rem;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .section-header {
@@ -557,8 +788,10 @@ onMounted(() => {
 
 .sub-hint {
   margin: 0.2rem 0 0;
-  color: #94a3b8;
+  color: var(--card-text-color, #94a3b8);
+  opacity: 0.8;
   font-size: 0.85rem;
+  transition: color 0.3s;
 }
 
 .add-btn {
@@ -583,7 +816,8 @@ onMounted(() => {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  color: #cbd5f5;
+  color: var(--card-text-color, #cbd5f5);
+  transition: color 0.3s;
 }
 
 .data-table thead {
@@ -595,8 +829,10 @@ onMounted(() => {
   text-align: left;
   font-weight: 600;
   font-size: 0.9rem;
-  color: #94a3b8;
+  color: var(--card-text-color, #94a3b8);
+  opacity: 0.8;
   border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  transition: color 0.3s;
 }
 
 .data-table td {
@@ -613,6 +849,22 @@ onMounted(() => {
   text-align: center;
   color: #94a3b8;
   padding: 2rem;
+}
+
+.edit-btn {
+  padding: 0.4rem 0.8rem;
+  background: #38bdf8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.2s;
+  margin-right: 0.5rem;
+}
+
+.edit-btn:hover {
+  background: #0ea5e9;
 }
 
 .delete-btn {
@@ -721,5 +973,235 @@ onMounted(() => {
 .submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* 权限管理样式 */
+.permission-management {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.role-list-container {
+  flex: 0 0 300px;
+  background: rgba(2, 6, 23, 0.5);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.role-list-container h4 {
+  margin: 0 0 1rem;
+  color: #cbd5f5;
+  font-size: 1rem;
+}
+
+.role-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.role-item {
+  padding: 0.75rem;
+  background: rgba(148, 163, 184, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.role-item:hover {
+  background: rgba(148, 163, 184, 0.15);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.role-item.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+}
+
+.role-name {
+  display: block;
+  color: #cbd5f5;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.role-desc {
+  display: block;
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.empty-role {
+  text-align: center;
+  color: #94a3b8;
+  padding: 2rem;
+}
+
+.permission-list-container {
+  flex: 1;
+  background: rgba(2, 6, 23, 0.5);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.permission-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.permission-header h4 {
+  margin: 0;
+  color: #cbd5f5;
+}
+
+.no-role-selected {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #94a3b8;
+}
+
+.no-role-selected p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+/* 主题设置样式 */
+.theme-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.theme-section {
+  background: var(--card-background-color, rgba(2, 6, 23, 0.5));
+  color: var(--card-text-color, #cbd5f5);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.theme-section h4 {
+  margin: 0 0 0.5rem;
+  color: var(--card-text-color, #cbd5f5);
+  font-size: 1.1rem;
+  transition: color 0.3s;
+}
+
+.theme-hint {
+  margin: 0 0 1.5rem;
+  color: var(--card-text-color, #94a3b8);
+  opacity: 0.8;
+  font-size: 0.9rem;
+  transition: color 0.3s;
+}
+
+.color-picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.color-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(148, 163, 184, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid transparent;
+}
+
+.color-option:hover {
+  background: rgba(148, 163, 184, 0.15);
+  border-color: rgba(56, 189, 248, 0.3);
+  transform: translateY(-2px);
+}
+
+.color-option.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+}
+
+.color-preview {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.color-name {
+  color: var(--card-text-color, #cbd5f5);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.3s;
+}
+
+.check-mark {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 24px;
+  height: 24px;
+  background: #38bdf8;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.custom-color {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.color-input {
+  width: 80px;
+  height: 50px;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  background: none;
+}
+
+.color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.color-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 6px;
+}
+
+.color-text {
+  flex: 1;
+  padding: 0.75rem;
+  background: var(--card-background-color, rgba(2, 6, 23, 0.9));
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 8px;
+  color: var(--card-text-color, #cbd5f5);
+  font-size: 0.9rem;
+  font-family: monospace;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.color-text:focus {
+  outline: none;
+  border-color: #38bdf8;
 }
 </style>

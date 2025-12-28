@@ -7,15 +7,15 @@ spring:
       datasource:
         # 本地数据源
         local:
-          url: jdbc:mysql://localhost:3306/drugtest?useSSL=false&serverTimezone=UTC&characterEncoding=utf8
+          url: jdbc:mysql://localhost:3306/drugtest?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true
           username: root
-          password: 123456
+          password: hedailin438
           driver-class-name: com.mysql.cj.jdbc.Driver
         # 局域网数据源
         pharmqcs:
-          url: jdbc:mysql://127.0.0.1:3306/pharmqcs?useSSL=false&serverTimezone=UTC&characterEncoding=utf8 # TODO 记得改局域网IP
+          url: jdbc:mysql://127.0.0.1:3306/pharmqcs?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&allowPublicKeyRetrieval=true # TODO 记得改局域网IP
           username: root
-          password: 123456
+          password: hedailin438
           driver-class-name: com.mysql.cj.jdbc.Driver
       hikari:
         maximum-pool-size: 10

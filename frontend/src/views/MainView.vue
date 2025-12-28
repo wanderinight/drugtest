@@ -98,13 +98,13 @@ onMounted(() => {
 .layout {
   min-height: 100vh;
   display: flex;
-  background: #020617;
+  background: transparent;
   color: #e2e8f0;
 }
 
 .sidebar {
   width: 220px;
-  background: #020617;
+  background: transparent;
   border-right: 1px solid rgba(148, 163, 184, 0.2);
 }
 
