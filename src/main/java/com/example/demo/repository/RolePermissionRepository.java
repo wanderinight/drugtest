@@ -39,4 +39,10 @@ public interface RolePermissionRepository extends JpaRepository<RolePermission, 
             "WHERE rp.role.roleId = :roleId " +  // 这里的roleId对应Role实体的主键字段
             "AND rp.permission.permissionId = :permissionId")  // permissionId对应Permission实体的主键字段
     void deleteByRoleIdAndPermissionId(@Param("roleId") Integer roleId, @Param("permissionId") Integer permissionId);
+
+    // 通过权限ID删除所有相关关联（删除权限前先清理关联）
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM RolePermission rp WHERE rp.permission.permissionId = :permissionId")
+    void deleteByPermissionId(@Param("permissionId") Integer permissionId);
 }

@@ -10,6 +10,8 @@ import com.example.demo.entity.Staff;
 import com.example.demo.service.PermissionAdminService;
 import com.example.demo.common.Result;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/admin/users")
 public class UserController {
@@ -54,5 +56,14 @@ public class UserController {
     public ResponseEntity<Result> getUserRole(@PathVariable Integer staffId) {
         Role role = adminService.getUserRole(staffId);
         return ResponseEntity.ok(Result.success(role));
+    }
+
+    /**
+     * 查询所有员工
+     */
+    @GetMapping("/list")
+    public ResponseEntity<Result> getAllStaff() {
+        List<Staff> staffList = adminService.getAllStaff();
+        return ResponseEntity.ok(Result.success(staffList));
     }
 }

@@ -11,6 +11,10 @@ import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.StaffRepository;
 import com.example.demo.repository.StaffRoleRepository;
 
+import java.util.List;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @Service
 public class PermissionAdminService {
 
@@ -22,6 +26,9 @@ public class PermissionAdminService {
 
     @Autowired
     private RoleRepository roleRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     /**
      * 为员工更新角色（替换现有角色，若已有角色则先删除）
@@ -51,6 +58,10 @@ public class PermissionAdminService {
         // 检查员工编码是否已存在
         if (staffRepository.existsByStaffcode(staff.getStaffcode())) {
             throw new IllegalArgumentException("员工编码已存在：" + staff.getStaffcode());
+        }
+        // 对密码进行加密
+        if (staff.getPassword() != null && !staff.getPassword().isEmpty()) {
+            staff.setPassword(passwordEncoder.encode(staff.getPassword()));
         }
         return staffRepository.save(staff);
     }
@@ -84,5 +95,12 @@ public class PermissionAdminService {
     public Role getUserRole(Integer staffId) {
         return staffRoleRepo.findRoleByStaffId(staffId)
                 .orElseThrow(() -> new IllegalArgumentException("员工未分配角色：" + staffId));
+    }
+
+    /**
+     * 查询所有员工
+     */
+    public List<Staff> getAllStaff() {
+        return staffRepository.findAll();
     }
 }
