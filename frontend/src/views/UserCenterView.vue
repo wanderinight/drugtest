@@ -713,17 +713,26 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.user-center {
+  color: #e5e7eb;
+  --app-text-color: #e5e7eb;
+  --card-text-color: #e5e7eb;
+}
+
 .user-center h2 {
   margin: 0 0 0.5rem;
-  color: var(--app-text-color, #cbd5f5);
-  transition: color 0.3s;
+  color: #e2e8f0;
 }
 
 .hint {
-  color: var(--app-text-color, #9ca3af);
-  opacity: 0.7;
-  margin-bottom: 1.5rem;
-  transition: color 0.3s;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.sub-hint {
+  margin: 0.2rem 0 0;
+  color: #94a3b8;
+  font-size: 0.85rem;
 }
 
 .tabs {
@@ -767,12 +776,12 @@ onMounted(() => {
 }
 
 .section {
-  background: var(--card-background-color, rgba(15, 23, 42, 0.9));
-  color: var(--card-text-color, #cbd5f5);
+  background: rgba(15, 23, 42, 0.9);
   border-radius: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  padding: 1.5rem;
-  transition: background-color 0.3s, color 0.3s;
+  padding: 1.2rem 1.3rem;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  margin-top: 1.5rem;
+  color: #e2e8f0;
 }
 
 .section-header {
