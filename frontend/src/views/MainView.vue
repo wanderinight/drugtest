@@ -5,25 +5,21 @@
     </aside>
     <main class="content">
       <div class="fixed-panel">
-        <div class="info-row">
-          <div class="info-left">
-            <span class="info-item">登录者：{{ staffInfo.name }}</span>
-            <span class="info-item">部门：{{ staffInfo.department || '-' }}</span>
-            <span class="info-item">权限：{{ staffInfo.roleName || '-' }}</span>
-          </div>
-          <div class="info-right">
-            <span class="info-item">日期：{{ today }}</span>
-            <button class="link" @click="refreshOverview" :disabled="loading">
-              {{ loading ? '刷新中...' : '刷新总览' }}
-            </button>
-            <button class="link" @click="handleLogout">退出登录</button>
-          </div>
-        </div>
-        <DeviceStatusStrip
-          ref="overviewStrip"
+        <UserInfoStrip
+          ref="userInfoStrip"
+          @refresh="handleUserInfoRefresh"
+          @logout="handleLogout"
+        />
+        <!-- 根据路由 meta 动态显示不同的统计信息 -->
+        <HomeStatsStrip
+          v-if="currentStatsType === 'home'"
+          ref="homeStatsStrip"
           class="inline-strip"
-          title="监控网络概览"
-          :show-refresh="false"
+        />
+        <MonitorStatsStrip
+          v-if="currentStatsType === 'monitor'"
+          ref="monitorStatsStrip"
+          class="inline-strip"
         />
       </div>
 
@@ -35,63 +31,39 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
+import { ref, computed } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import SideBar from '../components/SideBar.vue';
-import DeviceStatusStrip from '../components/DeviceStatusStrip.vue';
+import UserInfoStrip from '../components/UserInfoStrip.vue';
+import HomeStatsStrip from '../components/HomeStatsStrip.vue';
+import MonitorStatsStrip from '../components/MonitorStatsStrip.vue';
 
 const router = useRouter();
-const apiBase = import.meta.env.VITE_API_BASE_URL || '';
-const loading = ref(false);
-const overviewStrip = ref(null);
+const route = useRoute();
+const userInfoStrip = ref(null);
+const homeStatsStrip = ref(null);
+const monitorStatsStrip = ref(null);
 
-const staffInfo = reactive({
-  name: localStorage.getItem('staffName') || '未登录',
-  department: '',
-  roleName: ''
+// 根据当前路由的 meta 信息确定显示的统计类型
+const currentStatsType = computed(() => {
+  // 获取当前激活的子路由
+  const matched = route.matched;
+  const childRoute = matched[matched.length - 1];
+  return childRoute?.meta?.statsType || 'none';
 });
 
-const today = computed(() => {
-  const date = new Date();
-  return date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' });
-});
-
-const fetchStaffInfo = async () => {
-  const staffCode = localStorage.getItem('staffCode');
-  if (!staffCode) return;
-  const { data } = await axios.get(`${apiBase}/api/auth/staff-role-dept`, {
-    params: { staffcode: staffCode }
-  });
-  const payload = data?.data;
-  if (payload) {
-    staffInfo.name = payload.staffname || staffInfo.name;
-    staffInfo.department = payload.department || '';
-    staffInfo.roleName = payload.role?.roleName || '';
-  }
-};
-
-const refreshOverview = async () => {
-  loading.value = true;
-  try {
-    await fetchStaffInfo();
-    overviewStrip.value?.refreshStats();
-  } finally {
-    loading.value = false;
+const handleUserInfoRefresh = () => {
+  // 刷新用户信息和相关统计组件
+  if (currentStatsType.value === 'home' && homeStatsStrip.value) {
+    homeStatsStrip.value.refreshStats();
+  } else if (currentStatsType.value === 'monitor' && monitorStatsStrip.value) {
+    monitorStatsStrip.value.refreshStats();
   }
 };
 
 const handleLogout = () => {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
-  localStorage.removeItem('staffName');
-  localStorage.removeItem('staffCode');
   router.replace({ name: 'login' });
 };
-
-onMounted(() => {
-  refreshOverview();
-});
 </script>
 
 <style scoped>
@@ -157,9 +129,8 @@ onMounted(() => {
   padding: 0;
 }
 
-.inline-strip :deep(.stats-strip) {
-  margin: 0;
-  padding: 0;
+.inline-strip {
+  margin-bottom: 0.6rem;
 }
 
 .page-body {

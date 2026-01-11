@@ -26,13 +26,48 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       { path: '', redirect: '/main/home' },
-      { path: 'home', name: 'home', component: HomeView },
-      { path: 'device', name: 'device-center', component: DeviceCenterView },
-      { path: 'monitor', name: 'monitor-center', component: MonitorCenterView },
-      { path: 'statistics', name: 'statistics-center', component: StatisticsCenterView },
-      { path: 'report', name: 'report-center', component: ReportCenterView },
-      { path: 'analysis', name: 'statistics-analysis', component: StatisticsAnalysisView },
-      { path: 'user', name: 'user-center', component: UserCenterView }
+      { 
+        path: 'home', 
+        name: 'home', 
+        component: HomeView,
+        meta: { statsType: 'home' } // 首页：设备总数、今日报警数量、待校准设备数量
+      },
+      { 
+        path: 'device', 
+        name: 'device-center', 
+        component: DeviceCenterView,
+        meta: { statsType: 'monitor' } // 设备管理：设备总数、监控中数量、监控中断数量、未监控数量
+      },
+      { 
+        path: 'monitor', 
+        name: 'monitor-center', 
+        component: MonitorCenterView,
+        meta: { statsType: 'monitor' } // 监控报警：设备总数、监控中数量、监控中断数量、未监控数量
+      },
+      { 
+        path: 'statistics', 
+        name: 'statistics-center', 
+        component: StatisticsCenterView,
+        meta: { statsType: 'monitor' } // 计量校准：设备总数、监控中数量、监控中断数量、未监控数量
+      },
+      { 
+        path: 'report', 
+        name: 'report-center', 
+        component: ReportCenterView,
+        meta: { statsType: 'monitor' } // 测量报告：设备总数、监控中数量、监控中断数量、未监控数量
+      },
+      { 
+        path: 'analysis', 
+        name: 'statistics-analysis', 
+        component: StatisticsAnalysisView,
+        meta: { statsType: 'none' } // 统计分析中心：只显示登录者信息
+      },
+      { 
+        path: 'user', 
+        name: 'user-center', 
+        component: UserCenterView,
+        meta: { statsType: 'none' } // 用户中心：只显示登录者信息
+      }
     ]
   }
 ];

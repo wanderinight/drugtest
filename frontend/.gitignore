@@ -4,3 +4,12 @@ dist
 .DS_Store
 *.local
 
+# 日志文件
+*.log
+*.log.*
+*.gz
+*.zip
+
+# 你的日志目录（根据实际路径调整）
+resouce/log/
+!resouce/

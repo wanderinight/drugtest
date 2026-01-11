@@ -191,7 +191,6 @@ import {
   GridComponent
 } from 'echarts/components';
 import VChart from 'vue-echarts';
-import DeviceStatusStrip from '../components/DeviceStatusStrip.vue';
 
 use([
   CanvasRenderer,

@@ -100,7 +100,6 @@
 import { onMounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import axios from 'axios';
-import DeviceStatusStrip from '../components/DeviceStatusStrip.vue';
 
 const apiBase = import.meta.env.VITE_API_BASE_URL || '';
 const filters = reactive({

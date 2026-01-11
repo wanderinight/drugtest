@@ -129,7 +129,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import axios from 'axios';
-import DeviceStatusStrip from '../components/DeviceStatusStrip.vue';
 
 const apiBase = import.meta.env.VITE_API_BASE_URL || '';
 const deviceCards = ref([]);
