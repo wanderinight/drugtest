@@ -2,7 +2,7 @@
   <div class="calibration-center">
     <h2>计量校准中心</h2>
     <p class="hint">查看设备校准状态、校准时间计划与执行情况。</p>
-    <DeviceStatusStrip title="监控网络概览" />
+<!--    <DeviceStatusStrip title="监控网络概览" />-->
 
     <section class="section">
       <header class="section-header">

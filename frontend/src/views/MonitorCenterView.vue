@@ -3,7 +3,7 @@
     <h2>监控报警中心</h2>
     <p class="hint">展示实时监控状态、历史告警记录，并支持时间范围/设备筛选。</p>
 
-    <DeviceStatusStrip title="监控网络概览" />
+<!--    <DeviceStatusStrip title="监控网络概览" />-->
 
     <section class="section">
       <header class="section-header">

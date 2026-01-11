@@ -2,7 +2,7 @@
   <div class="report-center">
     <h2>测量报告中心</h2>
     <p class="hint">按照设备 / 批次 / 产品 / 时间组合筛选，生成 PDF 并支持预览、保存、打印。</p>
-    <DeviceStatusStrip title="监控网络概览" />
+<!--    <DeviceStatusStrip title="监控网络概览" />-->
 
     <section class="section">
       <header class="section-header">

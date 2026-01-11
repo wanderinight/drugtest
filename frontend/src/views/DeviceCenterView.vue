@@ -2,7 +2,7 @@
   <div class="device-center">
     <h2>设备管理中心</h2>
     <p class="hint">查看设备状态、最新检测结果，并可跳转获取测量报告。</p>
-    <DeviceStatusStrip title="监控网络概览" />
+<!--    <DeviceStatusStrip title="监控网络概览" />-->
 
     <section class="section">
       <header class="section-header">

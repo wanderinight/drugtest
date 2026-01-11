@@ -2,7 +2,7 @@
   <div class="statistics-analysis">
     <h2>统计分析中心</h2>
     <p class="hint">支持多种统计方式、内容组合和时间筛选，提供可视化图表和多种格式导出。</p>
-    <DeviceStatusStrip title="监控网络概览" />
+<!--    <DeviceStatusStrip title="监控网络概览" />-->
 
     <!-- 查询条件 -->
     <section class="section">
