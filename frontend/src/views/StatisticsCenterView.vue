@@ -2,7 +2,7 @@
   <div class="calibration-center">
     <h2>计量校准中心</h2>
     <p class="hint">查看设备校准状态、校准时间计划与执行情况。</p>
-    <DeviceStatusStrip title="监控网络概览" />
+<!--    <DeviceStatusStrip title="监控网络概览" />-->
 
     <section class="section">
       <header class="section-header">
@@ -24,9 +24,6 @@
               <p class="location">位置：{{ device.location || '未配置' }}</p>
             </div>
             <div class="status-block">
-              <span :class="['status', device.monitorStatus?.toLowerCase() || 'unknown']">
-                {{ formatMonitorStatus(device.monitorStatus) }}
-              </span>
               <span :class="['calibration-status', device.calibrationStatus === 'PENDING' ? 'pending' : 'normal']">
                 {{ formatCalibrationStatus(device.calibrationStatus) }}
               </span>
@@ -34,10 +31,6 @@
           </div>
 
           <div class="stats-row">
-            <div>
-              <span class="label">监控状态</span>
-              <span class="value">{{ formatMonitorStatus(device.monitorStatus) }}</span>
-            </div>
             <div>
               <span class="label">运行状态</span>
               <span class="value">{{ formatOperationalStatus(device.operationalStatus) }}</span>
@@ -90,7 +83,6 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-import DeviceStatusStrip from '../components/DeviceStatusStrip.vue';
 
 const apiBase = import.meta.env.VITE_API_BASE_URL || '';
 const devices = ref([]);
@@ -100,15 +92,6 @@ const router = useRouter();
 const formatDateTime = (value) => {
   if (!value) return '-';
   return value.toString().replace('T', ' ').replace('Z', '');
-};
-
-const formatMonitorStatus = (status) => {
-  const map = {
-    MONITORON: '监控中',
-    MONITORINTERRUPT: '监控中断',
-    MONITOROFF: '未监控'
-  };
-  return map[status] || status || '-';
 };
 
 const formatOperationalStatus = (status) => {
@@ -249,24 +232,6 @@ onMounted(() => {
   gap: 0.3rem;
 }
 
-.status {
-  padding: 0.25rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  color: #fff;
-}
-
-.status.monitoron {
-  background: #22c55e;
-}
-.status.monitorinterrupt {
-  background: #f97316;
-}
-.status.monitoroff,
-.status.unknown {
-  background: #6b7280;
-}
-
 .calibration-status {
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
@@ -285,7 +250,7 @@ onMounted(() => {
 
 .stats-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.6rem;
   font-size: 0.85rem;
 }

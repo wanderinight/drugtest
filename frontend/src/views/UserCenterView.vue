@@ -309,6 +309,24 @@
             </div>
           </div>
 
+          <div class="theme-section">
+            <h4>自定义颜色</h4>
+            <div class="custom-color">
+              <input
+                type="color"
+                :value="backgroundColor"
+                @input="setBackgroundColor($event.target.value)"
+                class="color-input"
+              />
+              <input
+                type="text"
+                :value="backgroundColor"
+                @input="setBackgroundColor($event.target.value)"
+                class="color-text"
+                placeholder="#ffffff"
+              />
+            </div>
+          </div>
         </div>
       </section>
     </div>
@@ -713,26 +731,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.user-center {
-  color: #e5e7eb;
-  --app-text-color: #e5e7eb;
-  --card-text-color: #e5e7eb;
-}
-
 .user-center h2 {
   margin: 0 0 0.5rem;
-  color: #e2e8f0;
 }
 
 .hint {
   color: #9ca3af;
-  margin-bottom: 1rem;
-}
-
-.sub-hint {
-  margin: 0.2rem 0 0;
-  color: #94a3b8;
-  font-size: 0.85rem;
+  margin-bottom: 1.5rem;
 }
 
 .tabs {
@@ -778,10 +783,8 @@ onMounted(() => {
 .section {
   background: rgba(15, 23, 42, 0.9);
   border-radius: 16px;
-  padding: 1.2rem 1.3rem;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  margin-top: 1.5rem;
-  color: #e2e8f0;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  padding: 1.5rem;
 }
 
 .section-header {
@@ -797,10 +800,8 @@ onMounted(() => {
 
 .sub-hint {
   margin: 0.2rem 0 0;
-  color: var(--card-text-color, #94a3b8);
-  opacity: 0.8;
+  color: #94a3b8;
   font-size: 0.85rem;
-  transition: color 0.3s;
 }
 
 .add-btn {
@@ -825,8 +826,7 @@ onMounted(() => {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  color: var(--card-text-color, #cbd5f5);
-  transition: color 0.3s;
+  color: #cbd5f5;
 }
 
 .data-table thead {
@@ -838,10 +838,8 @@ onMounted(() => {
   text-align: left;
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--card-text-color, #94a3b8);
-  opacity: 0.8;
+  color: #94a3b8;
   border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  transition: color 0.3s;
 }
 
 .data-table td {
@@ -1088,27 +1086,22 @@ onMounted(() => {
 }
 
 .theme-section {
-  background: var(--card-background-color, rgba(2, 6, 23, 0.5));
-  color: var(--card-text-color, #cbd5f5);
+  background: rgba(2, 6, 23, 0.5);
   border-radius: 12px;
   padding: 1.5rem;
   border: 1px solid rgba(148, 163, 184, 0.2);
-  transition: background-color 0.3s, color 0.3s;
 }
 
 .theme-section h4 {
   margin: 0 0 0.5rem;
-  color: var(--card-text-color, #cbd5f5);
+  color: #cbd5f5;
   font-size: 1.1rem;
-  transition: color 0.3s;
 }
 
 .theme-hint {
   margin: 0 0 1.5rem;
-  color: var(--card-text-color, #94a3b8);
-  opacity: 0.8;
+  color: #94a3b8;
   font-size: 0.9rem;
-  transition: color 0.3s;
 }
 
 .color-picker {
@@ -1151,10 +1144,9 @@ onMounted(() => {
 }
 
 .color-name {
-  color: var(--card-text-color, #cbd5f5);
+  color: #cbd5f5;
   font-size: 0.9rem;
   font-weight: 500;
-  transition: color 0.3s;
 }
 
 .check-mark {
@@ -1200,13 +1192,12 @@ onMounted(() => {
 .color-text {
   flex: 1;
   padding: 0.75rem;
-  background: var(--card-background-color, rgba(2, 6, 23, 0.9));
+  background: rgba(2, 6, 23, 0.9);
   border: 1px solid rgba(148, 163, 184, 0.3);
   border-radius: 8px;
-  color: var(--card-text-color, #cbd5f5);
+  color: #cbd5f5;
   font-size: 0.9rem;
   font-family: monospace;
-  transition: background-color 0.3s, color 0.3s;
 }
 
 .color-text:focus {

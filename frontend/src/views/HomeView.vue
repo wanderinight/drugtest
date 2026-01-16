@@ -7,20 +7,20 @@
       </header>
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">在监控设备数量</div>
-          <div class="stat-value">{{ realtimeStats.monitoringDevices ?? 0 }}</div>
+          <div class="stat-label">监控设备数量</div>
+          <div class="stat-value">{{ deviceStats.monitoringDevices ?? 0 }}</div>
         </div>
         <div class="stat-card">
           <div class="stat-label">实时报警数量</div>
-          <div class="stat-value alert-value">{{ realtimeStats.alertingDevices ?? 0 }}</div>
+          <div class="stat-value alert-value">{{ deviceStats.alertingDevices ?? 0 }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">实时工作设备数量</div>
-          <div class="stat-value">{{ realtimeStats.workingDevices ?? 0 }}</div>
+          <div class="stat-label">实时工作数量</div>
+          <div class="stat-value">{{ deviceStats.workingDevices ?? 0 }}</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">实时待机设备数量</div>
-          <div class="stat-value">{{ realtimeStats.standbyDevices ?? 0 }}</div>
+          <div class="stat-label">待机数量</div>
+          <div class="stat-value">{{ deviceStats.standbyDevices ?? 0 }}</div>
         </div>
       </div>
     </section>
@@ -126,7 +126,7 @@ const apiBase = import.meta.env.VITE_API_BASE_URL || '';
 
 const alerts = ref([]);
 const followedDevices = ref([]);
-const realtimeStats = ref({
+const deviceStats = ref({
   monitoringDevices: 0,
   alertingDevices: 0,
   workingDevices: 0,
@@ -213,17 +213,20 @@ const fetchFollowedDevices = async () => {
   }
 };
 
-const fetchRealtimeStats = async () => {
+// 获取实时设备统计（监控设备数量、实时报警数量、实时工作数量、待机数量）
+const fetchDeviceStats = async () => {
   try {
-    const { data } = await axios.get(`${apiBase}/api/device/realtime-stats`);
-    realtimeStats.value = data?.data ?? {
-      monitoringDevices: 0,
-      alertingDevices: 0,
-      workingDevices: 0,
-      standbyDevices: 0
+    // 使用实时统计接口一次性获取所有数据
+    const { data } = await axios.get(`${apiBase}/api/device/realtime-stats`).catch(() => ({ data: { data: {} } }));
+    const stats = data?.data ?? {};
+    deviceStats.value = {
+      monitoringDevices: Number(stats.monitoringDevices ?? 0),
+      alertingDevices: Number(stats.alertingDevices ?? 0),
+      workingDevices: Number(stats.workingDevices ?? 0),
+      standbyDevices: Number(stats.standbyDevices ?? 0)
     };
   } catch (error) {
-    console.error('获取实时统计失败:', error);
+    console.error('获取实时设备统计失败:', error);
   }
 };
 
@@ -246,7 +249,7 @@ const refreshAll = async () => {
   await Promise.all([
     fetchAlerts(),
     fetchFollowedDevices(),
-    fetchRealtimeStats(),
+    fetchDeviceStats(),
     fetchWeekSummary()
   ]);
 };
@@ -335,7 +338,7 @@ th {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(4, minmax(200px, 1fr));
   gap: 1rem;
 }
 
